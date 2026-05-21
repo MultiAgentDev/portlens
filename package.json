@@ -2,8 +2,12 @@
   "name": "portlens",
   "version": "0.0.0",
   "private": true,
+  "bin": {
+    "portlens": "./packages/cli/dist/index.js"
+  },
   "workspaces": [
-    "packages/*"
+    "packages/cli",
+    "packages/shared"
   ],
   "scripts": {
     "build": "turbo run build",
