@@ -1,22 +1,16 @@
 {
   "name": "portlens",
   "version": "0.0.0",
-  "private": true,
   "bin": {
     "portlens": "./packages/cli/dist/index.js"
+  },
+  "scripts": {
+    "prepare": "npm install --workspaces && npm run build --workspace=packages/cli"
   },
   "workspaces": [
     "packages/cli",
     "packages/shared"
   ],
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "test": "turbo run test",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "migrate": "ts-node --project infra/tsconfig.json infra/migrate.ts"
-  },
   "devDependencies": {
     "@types/node": "^25.8.0",
     "@types/pg": "^8.20.0",

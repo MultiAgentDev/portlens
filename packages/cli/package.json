@@ -7,10 +7,9 @@
     "portlens": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --banner:js='#!/usr/bin/env node'",
     "dev": "tsc --watch",
-    "lint": "eslint src/",
-    "test": "echo \"No tests yet\" && exit 0"
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@portlens/shared": "^0.0.0",
@@ -26,6 +25,7 @@
   "devDependencies": {
     "@types/qrcode-terminal": "^0.12.2",
     "@types/ws": "^8.18.1",
+    "esbuild": "^0.20.0",
     "ts-node": "^10.9.2",
     "typescript": "*"
   }
