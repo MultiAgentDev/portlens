@@ -1,0 +1,32 @@
+{
+  "name": "portlens",
+  "version": "0.0.0",
+  "description": "Share your local server with anyone, instantly.",
+  "type": "module",
+  "bin": {
+    "portlens": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src/",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "dependencies": {
+    "@portlens/shared": "^0.0.0",
+    "chalk": "^4.1.2",
+    "commander": "^8.3.0",
+    "dotenv": "^10.0.0",
+    "open": "^8.4.2",
+    "ora": "^9.4.0",
+    "puppeteer-core": "^25.0.2",
+    "qrcode-terminal": "^0.12.0",
+    "ws": "^7.5.10"
+  },
+  "devDependencies": {
+    "@types/qrcode-terminal": "^0.12.2",
+    "@types/ws": "^8.18.1",
+    "ts-node": "^10.9.2",
+    "typescript": "*"
+  }
+}
