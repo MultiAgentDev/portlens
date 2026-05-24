@@ -12611,6 +12611,24 @@ var VIEWER_BASE = "https://viewer.portlens.net";
 function wsToHttp(url) {
   return url.replace(/^wss:\/\//, "https://").replace(/^ws:\/\//, "http://");
 }
+function normaliseRelay(raw) {
+  let url = raw.trim();
+  if (url && !/^wss?:\/\//i.test(url)) {
+    url = `wss://${url}`;
+  }
+  try {
+    new URL(url);
+  } catch {
+    console.error(
+      import_chalk4.default.red(
+        `  Invalid relay URL: "${raw}"
+  Expected a WebSocket URL, e.g. wss://relay.portlens.net`
+      )
+    );
+    process.exit(1);
+  }
+  return url;
+}
 var program = new import_commander.Command();
 program.name("portlens").description("Share your local server with anyone, instantly.");
 program.command("login").description("Log in to PortLens with a magic link").action(async () => {
@@ -12792,22 +12810,7 @@ program.argument("<port>", "Local port to tunnel", (v) => {
 }).option("--name <string>", "App name shown in the viewer").option("--desc <string>", "One-line description").option("--password <string>", "Protect the share link with a password").option("--relay <url>", "Override relay WebSocket URL").option("--no-open", "Don't auto-open the viewer URL in the browser").option("--no-screenshot", "Skip automatic screenshot capture").option("--qr", "Print the share URL as a QR code").action((port, opts) => {
   const cfg = readConfig();
   const auth = readAuth();
-  let rawRelay = opts.relay ?? cfg.relay;
-  if (rawRelay && !/^wss?:\/\//i.test(rawRelay)) {
-    rawRelay = `wss://${rawRelay}`;
-  }
-  try {
-    new URL(rawRelay);
-  } catch {
-    console.error(
-      import_chalk4.default.red(
-        `  Invalid relay URL: "${rawRelay}"
-  Expected a WebSocket URL, e.g. wss://relay.portlens.net`
-      )
-    );
-    process.exit(1);
-  }
-  const relay = rawRelay;
+  const relay = normaliseRelay(opts.relay ?? cfg.relay);
   const name = opts.name ?? cfg.defaultName;
   const desc = opts.desc ?? cfg.defaultDesc;
   const jwtToken = auth?.token;

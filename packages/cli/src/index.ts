@@ -311,22 +311,7 @@ program
     // ── Relay URL normalisation & validation ──────────────────────────────
     // Accept bare hostnames/domains (e.g. "pankaj.portlens.net") by
     // auto-prepending wss://.  Reject anything that still doesn't parse.
-    let rawRelay: string = (opts.relay as string | undefined) ?? cfg.relay;
-    if (rawRelay && !/^wss?:\/\//i.test(rawRelay)) {
-      rawRelay = `wss://${rawRelay}`;
-    }
-    try {
-      new URL(rawRelay);
-    } catch {
-      console.error(
-        chalk.red(
-          `  Invalid relay URL: "${rawRelay}"\n` +
-          `  Expected a WebSocket URL, e.g. wss://relay.portlens.net`
-        )
-      );
-      process.exit(1);
-    }
-    const relay    = rawRelay;
+    const relay    = normaliseRelay((opts.relay as string | undefined) ?? cfg.relay);
     const name     = (opts.name  as string | undefined) ?? cfg.defaultName;
     const desc     = (opts.desc  as string | undefined) ?? cfg.defaultDesc;
     const jwtToken = auth?.token;
