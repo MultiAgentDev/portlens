@@ -4,7 +4,7 @@
   "description": "Share your local server with anyone, instantly.",
   "type": "module",
   "bin": {
-    "portlens": "dist/index.js"
+    "portlens": "./dist/index.js"
   },
   "files": [
     "dist"
