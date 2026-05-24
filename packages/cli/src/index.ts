@@ -20,6 +20,29 @@ function wsToHttp(url: string): string {
   return url.replace(/^wss:\/\//, "https://").replace(/^ws:\/\//, "http://");
 }
 
+/**
+ * Normalise a relay URL: auto-prepend wss:// if the protocol is missing,
+ * then validate.  Exits with a clean message on failure.
+ */
+function normaliseRelay(raw: string): string {
+  let url = raw.trim();
+  if (url && !/^wss?:\/\//i.test(url)) {
+    url = `wss://${url}`;
+  }
+  try {
+    new URL(url);
+  } catch {
+    console.error(
+      chalk.red(
+        `  Invalid relay URL: "${raw}"\n` +
+        `  Expected a WebSocket URL, e.g. wss://relay.portlens.net`
+      )
+    );
+    process.exit(1);
+  }
+  return url;
+}
+
 const program = new Command();
 program
   .name("portlens")
@@ -282,9 +305,28 @@ program
   .option("--no-screenshot", "Skip automatic screenshot capture")
   .option("--qr", "Print the share URL as a QR code")
   .action((port: number, opts) => {
-    const cfg      = readConfig();
-    const auth     = readAuth();
-    const relay    = (opts.relay as string | undefined) ?? cfg.relay;
+    const cfg  = readConfig();
+    const auth = readAuth();
+
+    // ── Relay URL normalisation & validation ──────────────────────────────
+    // Accept bare hostnames/domains (e.g. "pankaj.portlens.net") by
+    // auto-prepending wss://.  Reject anything that still doesn't parse.
+    let rawRelay: string = (opts.relay as string | undefined) ?? cfg.relay;
+    if (rawRelay && !/^wss?:\/\//i.test(rawRelay)) {
+      rawRelay = `wss://${rawRelay}`;
+    }
+    try {
+      new URL(rawRelay);
+    } catch {
+      console.error(
+        chalk.red(
+          `  Invalid relay URL: "${rawRelay}"\n` +
+          `  Expected a WebSocket URL, e.g. wss://relay.portlens.net`
+        )
+      );
+      process.exit(1);
+    }
+    const relay    = rawRelay;
     const name     = (opts.name  as string | undefined) ?? cfg.defaultName;
     const desc     = (opts.desc  as string | undefined) ?? cfg.defaultDesc;
     const jwtToken = auth?.token;
@@ -311,7 +353,7 @@ program
     let reconnectInfo: ReconnectInfo | undefined;
     let boxVisible    = false;
     let refreshTimer: NodeJS.Timeout | null = null;
-    let shareUrl      = `${VIEWER_BASE}/${agent.token}`;
+    let shareUrl      = `${VIEWER_BASE}/v/${agent.token}`;
 
     /** Render a fresh box snapshot using the latest state variables. */
     function boxOpts() {

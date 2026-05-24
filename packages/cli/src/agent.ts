@@ -47,8 +47,8 @@ const PING_INTERVAL_MS = 30_000;
 export class ReconnectionManager {
   private attempts = 0;
   private readonly maxAttempts = 10;
-  private readonly baseDelay = 1_000;   // 1 s
-  private readonly maxDelay = 30_000;  // 30 s
+  private readonly baseDelay   = 1_000;   // 1 s
+  private readonly maxDelay    = 30_000;  // 30 s
 
   /**
    * Compute the next delay with full-jitter:
@@ -56,7 +56,7 @@ export class ReconnectionManager {
    *   result = base + base × 0.2 × random()
    */
   getDelay(): number {
-    const base = Math.min(this.baseDelay * 2 ** this.attempts, this.maxDelay);
+    const base   = Math.min(this.baseDelay * 2 ** this.attempts, this.maxDelay);
     const jitter = base * 0.2 * Math.random();
     return base + jitter;
   }
@@ -158,8 +158,8 @@ export class Agent extends EventEmitter {
   private _openSocket(): void {
     const { relay, name, desc, password, jwtToken } = this.options;
     const url = `${relay}/agent?token=${this.token}`;
-    const ws = new WebSocket(url);
-    this.ws = ws;
+    const ws  = new WebSocket(url);
+    this.ws   = ws;
 
     ws.on("open", () => {
       // A successful open resets the back-off counter.
@@ -167,12 +167,12 @@ export class Agent extends EventEmitter {
       this.pingTimestamp = null;
 
       const msg: TunnelMessage = {
-        type: "register",
-        token: this.token,
+        type:    "register",
+        token:   this.token,
         appName: name,
         appDesc: desc,
         ...(password ? { passwordHash: hashPassword(password) } : {}),
-        ...(jwtToken ? { jwtToken } : {}),
+        ...(jwtToken ? { jwtToken }                              : {}),
       };
       ws.send(JSON.stringify(msg));
 
@@ -225,7 +225,7 @@ export class Agent extends EventEmitter {
   private _stopPing(): void {
     if (this.pingTimer) {
       clearInterval(this.pingTimer);
-      this.pingTimer = null;
+      this.pingTimer    = null;
       this.pingTimestamp = null;
     }
   }
@@ -272,7 +272,7 @@ export class Agent extends EventEmitter {
 
     const options: http.RequestOptions = {
       hostname: "localhost",
-      port: this.port,
+      port:     this.port,
       method,
       path,
       headers: {
@@ -288,11 +288,11 @@ export class Agent extends EventEmitter {
       respBody: Buffer
     ) => {
       const outMsg: TunnelMessage = {
-        type: "response",
+        type:       "response",
         requestId,
         statusCode,
-        headers: respHeaders,
-        body: respBody.toString("base64"),
+        headers:    respHeaders,
+        body:       respBody.toString("base64"),
       };
       if (this.ws?.readyState === WebSocket.OPEN) {
         this.ws.send(JSON.stringify(outMsg));
@@ -305,8 +305,8 @@ export class Agent extends EventEmitter {
       res.on("end", () => {
         const respHeaders: Record<string, string> = {};
         for (const [k, v] of Object.entries(res.headers)) {
-          if (typeof v === "string") respHeaders[k] = v;
-          else if (Array.isArray(v)) respHeaders[k] = v.join(", ");
+          if (typeof v === "string")   respHeaders[k] = v;
+          else if (Array.isArray(v))   respHeaders[k] = v.join(", ");
         }
         respond(res.statusCode ?? 500, respHeaders, Buffer.concat(chunks));
       });
@@ -414,18 +414,18 @@ export class Agent extends EventEmitter {
 
       await page.goto(`http://localhost:${this.port}`, {
         waitUntil: "load",
-        timeout: 15_000,
+        timeout:   15_000,
       });
 
-      const shot = await page.screenshot({ type: "webp", quality: 80 });
+      const shot       = await page.screenshot({ type: "webp", quality: 80 });
       const imageBase64 = Buffer.from(shot).toString("base64");
 
       const res = await fetch(
         `${this._relayHttp()}/session/${this.token}/screenshot`,
         {
-          method: "POST",
+          method:  "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ imageBase64 }),
+          body:    JSON.stringify({ imageBase64 }),
         }
       );
 
