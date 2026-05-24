@@ -1,6 +1,6 @@
 {
   "name": "@portlens/cli",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Share your local server with anyone, instantly.",
   "type": "module",
   "bin": {
@@ -14,6 +14,7 @@
   },
   "scripts": {
     "build": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --banner:js='#!/usr/bin/env node'",
+    "dev": "tsc --watch",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
