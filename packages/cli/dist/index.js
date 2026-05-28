@@ -4095,7 +4095,7 @@ var require_open = __commonJS({
     var isDocker = require_is_docker();
     var defineLazyProperty = require_define_lazy_prop();
     var localXdgOpenPath = path3.join(__dirname, "xdg-open");
-    var { platform, arch } = process;
+    var { platform: platform2, arch } = process;
     var hasContainerEnv = () => {
       try {
         fs4.statSync("/run/.containerenv");
@@ -4177,7 +4177,7 @@ var require_open = __commonJS({
       let command;
       const cliArguments = [];
       const childProcessOptions = {};
-      if (platform === "darwin") {
+      if (platform2 === "darwin") {
         command = "open";
         if (options.wait) {
           cliArguments.push("--wait-apps");
@@ -4191,7 +4191,7 @@ var require_open = __commonJS({
         if (app) {
           cliArguments.push("-a", app);
         }
-      } else if (platform === "win32" || isWsl && !isInsideContainer() && !app) {
+      } else if (platform2 === "win32" || isWsl && !isInsideContainer() && !app) {
         const mountPoint = await getWslDrivesMountPoint();
         command = isWsl ? `${mountPoint}c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe` : `${process.env.SYSTEMROOT}\\System32\\WindowsPowerShell\\v1.0\\powershell`;
         cliArguments.push(
@@ -4232,7 +4232,7 @@ var require_open = __commonJS({
             exeLocalXdgOpen = true;
           } catch {
           }
-          const useSystemXdgOpen = process.versions.electron || platform === "android" || isBundled || !exeLocalXdgOpen;
+          const useSystemXdgOpen = process.versions.electron || platform2 === "android" || isBundled || !exeLocalXdgOpen;
           command = useSystemXdgOpen ? "xdg-open" : localXdgOpenPath;
         }
         if (appArguments.length > 0) {
@@ -4246,7 +4246,7 @@ var require_open = __commonJS({
       if (options.target) {
         cliArguments.push(options.target);
       }
-      if (platform === "darwin" && appArguments.length > 0) {
+      if (platform2 === "darwin" && appArguments.length > 0) {
         cliArguments.push("--args", ...appArguments);
       }
       const subprocess = childProcess.spawn(command, cliArguments, childProcessOptions);
@@ -4300,12 +4300,12 @@ var require_open = __commonJS({
       }
       return archBinary;
     }
-    function detectPlatformBinary({ [platform]: platformBinary }, { wsl }) {
+    function detectPlatformBinary({ [platform2]: platformBinary }, { wsl }) {
       if (wsl && isWsl) {
         return detectArchBinary(wsl);
       }
       if (!platformBinary) {
-        throw new Error(`${platform} is not supported`);
+        throw new Error(`${platform2} is not supported`);
       }
       return detectArchBinary(platformBinary);
     }
@@ -7386,7 +7386,7 @@ var require_websocket = __commonJS({
     var http2 = __require("http");
     var net = __require("net");
     var tls = __require("tls");
-    var { randomBytes: randomBytes2, createHash: createHash2 } = __require("crypto");
+    var { randomBytes: randomBytes2, createHash: createHash3 } = __require("crypto");
     var { Readable } = __require("stream");
     var { URL: URL2 } = __require("url");
     var PerMessageDeflate = require_permessage_deflate();
@@ -7985,7 +7985,7 @@ var require_websocket = __commonJS({
           abortHandshake(websocket, socket, "Invalid Upgrade header");
           return;
         }
-        const digest = createHash2("sha1").update(key + GUID).digest("base64");
+        const digest = createHash3("sha1").update(key + GUID).digest("base64");
         if (res.headers["sec-websocket-accept"] !== digest) {
           abortHandshake(websocket, socket, "Invalid Sec-WebSocket-Accept header");
           return;
@@ -8313,7 +8313,7 @@ var require_websocket_server = __commonJS({
     var https = __require("https");
     var net = __require("net");
     var tls = __require("tls");
-    var { createHash: createHash2 } = __require("crypto");
+    var { createHash: createHash3 } = __require("crypto");
     var PerMessageDeflate = require_permessage_deflate();
     var WebSocket2 = require_websocket();
     var { format: format2, parse } = require_extension();
@@ -8550,7 +8550,7 @@ var require_websocket_server = __commonJS({
         }
         if (this._state > RUNNING)
           return abortHandshake(socket, 503);
-        const digest = createHash2("sha1").update(key + GUID).digest("base64");
+        const digest = createHash3("sha1").update(key + GUID).digest("base64");
         const headers = [
           "HTTP/1.1 101 Switching Protocols",
           "Upgrade: websocket",
@@ -12103,7 +12103,79 @@ var import_chalk2 = __toESM(require_source(), 1);
 import fs from "node:fs";
 import http from "node:http";
 import { EventEmitter } from "node:events";
-import { createHash, randomBytes } from "node:crypto";
+
+// src/deviceId.ts
+import { execSync } from "node:child_process";
+import { createHash, randomUUID } from "node:crypto";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { join } from "node:path";
+import { homedir, platform } from "node:os";
+var CONFIG_DIR = join(homedir(), ".portlens");
+var DEVICE_FILE = join(CONFIG_DIR, "device.json");
+var HASH_SALT = "portlens-device-v1";
+function readMacOs() {
+  const out = execSync(
+    "ioreg -rd1 -c IOPlatformExpertDevice | awk '/IOPlatformUUID/{ print $3 }'",
+    { encoding: "utf8", timeout: 3e3, stdio: ["pipe", "pipe", "pipe"] }
+  );
+  return out.trim().replace(/^"|"$/g, "");
+}
+function readLinux() {
+  for (const p of ["/etc/machine-id", "/var/lib/dbus/machine-id"]) {
+    if (existsSync(p))
+      return readFileSync(p, "utf8").trim();
+  }
+  return "";
+}
+function readWindows() {
+  const out = execSync(
+    "wmic csproduct get uuid /value",
+    { encoding: "utf8", timeout: 3e3, stdio: ["pipe", "pipe", "pipe"] }
+  );
+  return (out.match(/UUID=([A-F0-9-]+)/i)?.[1] ?? "").trim();
+}
+function getMachineId() {
+  try {
+    const os4 = platform();
+    if (os4 === "darwin")
+      return readMacOs();
+    if (os4 === "linux")
+      return readLinux();
+    if (os4 === "win32")
+      return readWindows();
+  } catch {
+  }
+  return "";
+}
+function getOrCreateUUID() {
+  try {
+    if (existsSync(DEVICE_FILE)) {
+      const data = JSON.parse(readFileSync(DEVICE_FILE, "utf8"));
+      if (data.uuid && typeof data.uuid === "string")
+        return data.uuid;
+    }
+  } catch {
+  }
+  const uuid = randomUUID();
+  try {
+    mkdirSync(CONFIG_DIR, { recursive: true });
+    writeFileSync(DEVICE_FILE, JSON.stringify({ uuid }, null, 2) + "\n", "utf8");
+  } catch {
+  }
+  return uuid;
+}
+var _cached;
+function getDeviceFingerprint() {
+  if (_cached)
+    return _cached;
+  const machineId = getMachineId();
+  const raw = machineId.length > 8 ? machineId : getOrCreateUUID();
+  _cached = createHash("sha256").update(HASH_SALT).update(raw).digest("hex");
+  return _cached;
+}
+
+// src/agent.ts
+import { createHash as createHash2, randomBytes } from "node:crypto";
 var BASE58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 function base58Encode(buf) {
   let num = BigInt("0x" + buf.toString("hex"));
@@ -12123,7 +12195,7 @@ function generateToken(length) {
   return base58Encode(randomBytes(Math.ceil(length * 0.75))).slice(0, length);
 }
 function hashPassword(password) {
-  return createHash("sha256").update(password).digest("hex");
+  return createHash2("sha256").update(password).digest("hex");
 }
 var PING_INTERVAL_MS = 3e4;
 var ReconnectionManager = class {
@@ -12188,6 +12260,8 @@ var Agent = class extends EventEmitter {
   screenshotDone = false;
   /** Timestamp of the last agent-initiated ping; null when no ping is in-flight. */
   pingTimestamp = null;
+  /** Local WebSocket connections opened on behalf of proxied browser connections. */
+  wsConnections = /* @__PURE__ */ new Map();
   reconnectionManager = new ReconnectionManager();
   token;
   connect() {
@@ -12198,6 +12272,13 @@ var Agent = class extends EventEmitter {
   close() {
     this.closing = true;
     this._stopPing();
+    for (const ws of this.wsConnections.values()) {
+      try {
+        ws.close(1001, "Tunnel closing");
+      } catch {
+      }
+    }
+    this.wsConnections.clear();
     if (this.ws) {
       this.ws.removeAllListeners();
       this.ws.close();
@@ -12217,6 +12298,7 @@ var Agent = class extends EventEmitter {
         token: this.token,
         appName: name,
         appDesc: desc,
+        deviceFingerprint: getDeviceFingerprint(),
         ...password ? { passwordHash: hashPassword(password) } : {},
         ...jwtToken ? { jwtToken } : {}
       };
@@ -12288,7 +12370,37 @@ var Agent = class extends EventEmitter {
       this._forwardRequest(msg);
       return;
     }
+    if (msg.type === "ws-connect") {
+      this._openLocalWs(msg.wsId, msg.path);
+      return;
+    }
+    if (msg.type === "ws-message") {
+      const localWs = this.wsConnections.get(msg.wsId);
+      if (localWs?.readyState === import_ws.default.OPEN) {
+        const payload = msg.binary ? Buffer.from(msg.data, "base64") : msg.data;
+        localWs.send(payload);
+      }
+      return;
+    }
+    if (msg.type === "ws-close") {
+      const localWs = this.wsConnections.get(msg.wsId);
+      if (localWs) {
+        try {
+          localWs.close(msg.code ?? 1e3, msg.reason ?? "");
+        } catch {
+        }
+        this.wsConnections.delete(msg.wsId);
+      }
+      return;
+    }
     if (msg.type === "error") {
+      if (msg.code === "DEVICE_QUOTA_EXCEEDED") {
+        console.error(
+          import_chalk2.default.red("\n  \u2716  Free plan limit reached for this device.\n") + import_chalk2.default.yellow("     " + msg.message) + "\n"
+        );
+        this.closing = true;
+        process.exit(1);
+      }
       console.error(import_chalk2.default.red(`
   Relay error [${msg.code}]: ${msg.message}`));
     }
@@ -12346,6 +12458,55 @@ var Agent = class extends EventEmitter {
     if (reqBody)
       req.write(reqBody);
     req.end();
+  }
+  // ── Local WebSocket proxy ─────────────────────────────────────────────────
+  _openLocalWs(wsId, path3) {
+    const url = `ws://localhost:${this.port}${path3}`;
+    let localWs;
+    try {
+      localWs = new import_ws.default(url);
+    } catch (err) {
+      this.ws?.send(JSON.stringify({
+        type: "ws-error",
+        wsId,
+        message: err instanceof Error ? err.message : String(err)
+      }));
+      return;
+    }
+    localWs.on("open", () => {
+      this.wsConnections.set(wsId, localWs);
+    });
+    localWs.on("message", (data, isBinary) => {
+      if (this.ws?.readyState !== import_ws.default.OPEN)
+        return;
+      this.ws.send(JSON.stringify({
+        type: "ws-message",
+        wsId,
+        data: isBinary ? Buffer.from(data).toString("base64") : data.toString(),
+        binary: isBinary
+      }));
+    });
+    localWs.on("close", (code, reason) => {
+      this.wsConnections.delete(wsId);
+      if (this.ws?.readyState === import_ws.default.OPEN) {
+        this.ws.send(JSON.stringify({
+          type: "ws-close",
+          wsId,
+          code,
+          reason: reason.toString()
+        }));
+      }
+    });
+    localWs.on("error", (err) => {
+      this.wsConnections.delete(wsId);
+      if (this.ws?.readyState === import_ws.default.OPEN) {
+        this.ws.send(JSON.stringify({
+          type: "ws-error",
+          wsId,
+          message: err.message
+        }));
+      }
+    });
   }
   // ── Screenshot capture ────────────────────────────────────────────────────
   /** Convert the relay WebSocket URL to its HTTP equivalent. */
@@ -12454,8 +12615,8 @@ var Agent = class extends EventEmitter {
 import fs2 from "node:fs";
 import path from "node:path";
 import os2 from "node:os";
-var CONFIG_DIR = path.join(os2.homedir(), ".portlens");
-var CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
+var CONFIG_DIR2 = path.join(os2.homedir(), ".portlens");
+var CONFIG_FILE = path.join(CONFIG_DIR2, "config.json");
 var DEFAULTS = {
   relay: "wss://relay.portlens.net",
   defaultName: "My App",
@@ -12471,7 +12632,7 @@ function readConfig() {
   }
 }
 function writeConfig(config) {
-  fs2.mkdirSync(CONFIG_DIR, { recursive: true });
+  fs2.mkdirSync(CONFIG_DIR2, { recursive: true });
   fs2.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2) + "\n", "utf8");
 }
 function configFilePath() {

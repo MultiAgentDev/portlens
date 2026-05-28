@@ -3,6 +3,7 @@ import http from "node:http";
 import { EventEmitter } from "node:events";
 import WebSocket from "ws";
 import chalk from "chalk";
+import { getDeviceFingerprint } from "./deviceId.js";
 // ── Inlined from @portlens/shared (kept private / not on npm) ────────────────
 import { createHash, randomBytes } from "node:crypto";
 
@@ -23,12 +24,16 @@ function hashPassword(password: string): string {
 
 // ── TunnelMessage type (from @portlens/shared) ────────────────────────────────
 type TunnelMessage =
-  | { type: "register"; token: string; userId?: string; appName?: string; appDesc?: string; passwordHash?: string; jwtToken?: string }
+  | { type: "register"; token: string; userId?: string; appName?: string; appDesc?: string; passwordHash?: string; jwtToken?: string; deviceFingerprint?: string }
   | { type: "request"; requestId: string; method: string; path: string; headers: Record<string, string>; body?: string }
   | { type: "response"; requestId: string; statusCode: number; headers: Record<string, string>; body: string }
   | { type: "error"; code: string; message: string }
   | { type: "ping" }
-  | { type: "pong" };
+  | { type: "pong" }
+  | { type: "ws-connect"; wsId: string; path: string }
+  | { type: "ws-message"; wsId: string; data: string; binary: boolean }
+  | { type: "ws-close"; wsId: string; code?: number; reason?: string }
+  | { type: "ws-error"; wsId: string; message: string };
 
 // ── Timing constants ──────────────────────────────────────────────────────────
 
@@ -127,6 +132,9 @@ export class Agent extends EventEmitter {
   /** Timestamp of the last agent-initiated ping; null when no ping is in-flight. */
   private pingTimestamp: number | null = null;
 
+  /** Local WebSocket connections opened on behalf of proxied browser connections. */
+  private readonly wsConnections = new Map<string, WebSocket>();
+
   private readonly reconnectionManager = new ReconnectionManager();
 
   readonly token: string;
@@ -147,6 +155,10 @@ export class Agent extends EventEmitter {
   close(): void {
     this.closing = true;
     this._stopPing();
+    for (const ws of this.wsConnections.values()) {
+      try { ws.close(1001, "Tunnel closing"); } catch { /* ignore */ }
+    }
+    this.wsConnections.clear();
     if (this.ws) {
       this.ws.removeAllListeners();
       this.ws.close();
@@ -167,10 +179,11 @@ export class Agent extends EventEmitter {
       this.pingTimestamp = null;
 
       const msg: TunnelMessage = {
-        type:    "register",
-        token:   this.token,
-        appName: name,
-        appDesc: desc,
+        type:              "register",
+        token:             this.token,
+        appName:           name,
+        appDesc:           desc,
+        deviceFingerprint: getDeviceFingerprint(),
         ...(password ? { passwordHash: hashPassword(password) } : {}),
         ...(jwtToken ? { jwtToken }                              : {}),
       };
@@ -259,7 +272,40 @@ export class Agent extends EventEmitter {
       return;
     }
 
+    if (msg.type === "ws-connect") {
+      this._openLocalWs(msg.wsId, msg.path);
+      return;
+    }
+
+    if (msg.type === "ws-message") {
+      const localWs = this.wsConnections.get(msg.wsId);
+      if (localWs?.readyState === WebSocket.OPEN) {
+        const payload = msg.binary ? Buffer.from(msg.data, "base64") : msg.data;
+        localWs.send(payload);
+      }
+      return;
+    }
+
+    if (msg.type === "ws-close") {
+      const localWs = this.wsConnections.get(msg.wsId);
+      if (localWs) {
+        try { localWs.close(msg.code ?? 1000, msg.reason ?? ""); } catch { /* ignore */ }
+        this.wsConnections.delete(msg.wsId);
+      }
+      return;
+    }
+
     if (msg.type === "error") {
+      if (msg.code === "DEVICE_QUOTA_EXCEEDED") {
+        // Print a prominent, actionable message then exit cleanly.
+        console.error(
+          chalk.red("\n  ✖  Free plan limit reached for this device.\n") +
+          chalk.yellow("     " + msg.message) +
+          "\n"
+        );
+        this.closing = true;
+        process.exit(1);
+      }
       console.error(chalk.red(`\n  Relay error [${msg.code}]: ${msg.message}`));
     }
   }
@@ -325,6 +371,62 @@ export class Agent extends EventEmitter {
 
     if (reqBody) req.write(reqBody);
     req.end();
+  }
+
+  // ── Local WebSocket proxy ─────────────────────────────────────────────────
+
+  private _openLocalWs(wsId: string, path: string): void {
+    const url = `ws://localhost:${this.port}${path}`;
+    let localWs: WebSocket;
+    try {
+      localWs = new WebSocket(url);
+    } catch (err) {
+      this.ws?.send(JSON.stringify({
+        type: "ws-error",
+        wsId,
+        message: err instanceof Error ? err.message : String(err),
+      }));
+      return;
+    }
+
+    localWs.on("open", () => {
+      this.wsConnections.set(wsId, localWs);
+    });
+
+    localWs.on("message", (data, isBinary) => {
+      if (this.ws?.readyState !== WebSocket.OPEN) return;
+      this.ws.send(JSON.stringify({
+        type: "ws-message",
+        wsId,
+        data: isBinary
+          ? Buffer.from(data as Buffer).toString("base64")
+          : data.toString(),
+        binary: isBinary,
+      }));
+    });
+
+    localWs.on("close", (code, reason) => {
+      this.wsConnections.delete(wsId);
+      if (this.ws?.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify({
+          type: "ws-close",
+          wsId,
+          code,
+          reason: reason.toString(),
+        }));
+      }
+    });
+
+    localWs.on("error", (err) => {
+      this.wsConnections.delete(wsId);
+      if (this.ws?.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify({
+          type: "ws-error",
+          wsId,
+          message: err.message,
+        }));
+      }
+    });
   }
 
   // ── Screenshot capture ────────────────────────────────────────────────────
