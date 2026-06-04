@@ -2,6 +2,9 @@
 import { spawnSync } from "node:child_process";
 import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { join } from "node:path";
+import { homedir } from "node:os";
 import { Command } from "commander";
 import ora from "ora";
 import chalk from "chalk";
@@ -13,11 +16,123 @@ import { readAuth, writeAuth, deleteAuth } from "./authStore.js";
 import { printBox, updateBox } from "./display.js";
 import type { TunnelStatus, ReconnectInfo } from "./display.js";
 
+// ── Privacy Policy consent ────────────────────────────────────────────────────
+
+const CONFIG_DIR    = join(homedir(), ".portlens");
+const CONSENT_FILE  = join(CONFIG_DIR, "consent.json");
+/** Bump this version string whenever the privacy policy changes materially. */
+const POLICY_VERSION = "1.0";
+const POLICY_URL     = "https://portlens.net/privacy-policy.html";
+
+interface ConsentRecord {
+  accepted: boolean;
+  version: string;
+  acceptedAt: string;
+}
+
+function readConsent(): ConsentRecord | null {
+  try {
+    if (!existsSync(CONSENT_FILE)) return null;
+    return JSON.parse(readFileSync(CONSENT_FILE, "utf8")) as ConsentRecord;
+  } catch {
+    return null;
+  }
+}
+
+function saveConsent(): void {
+  try {
+    mkdirSync(CONFIG_DIR, { recursive: true });
+    const record: ConsentRecord = {
+      accepted: true,
+      version: POLICY_VERSION,
+      acceptedAt: new Date().toISOString(),
+    };
+    writeFileSync(CONSENT_FILE, JSON.stringify(record, null, 2) + "\n", "utf8");
+  } catch { /* best-effort */ }
+}
+
+/**
+ * Ensure the user has accepted the Privacy Policy before starting a tunnel.
+ * Prompts once; acceptance is stored in ~/.portlens/consent.json.
+ * Re-prompts if the stored policy version differs from the current one.
+ */
+async function ensurePrivacyConsent(): Promise<void> {
+  const existing = readConsent();
+  if (existing?.accepted && existing.version === POLICY_VERSION) return;
+
+  const isUpdate = existing?.accepted && existing.version !== POLICY_VERSION;
+
+  console.log();
+  if (isUpdate) {
+    console.log(
+      chalk.yellow("  ℹ  The PortLens Privacy Policy has been updated (v" + POLICY_VERSION + ").")
+    );
+  } else {
+    console.log(
+      chalk.bold("  PortLens Privacy Policy")
+    );
+  }
+  console.log(
+    chalk.dim(`  Before creating a tunnel, please review the Privacy Policy:\n`) +
+    chalk.cyan(`  ${POLICY_URL}\n`)
+  );
+  console.log(
+    chalk.dim("  By continuing you agree that PortLens may process your data as described,\n") +
+    chalk.dim("  including the use of a device fingerprint for free-plan quota management.\n") +
+    chalk.dim("  We comply with GDPR, ISO 27001 guidelines, and PCI DSS (via Stripe).\n")
+  );
+
+  const rl = createInterface({ input, output });
+  let answer = "";
+  try {
+    answer = await rl.question(
+      chalk.white("  Do you accept the Privacy Policy? ") + chalk.dim("[yes/no] ")
+    );
+  } finally {
+    rl.close();
+  }
+
+  if (answer.trim().toLowerCase().startsWith("y")) {
+    saveConsent();
+    console.log(chalk.green("  ✔  Privacy Policy accepted. Thank you.\n"));
+  } else {
+    console.log(
+      chalk.red("\n  Privacy Policy not accepted.\n") +
+      chalk.dim(`  You can read the full policy at ${POLICY_URL}\n`) +
+      chalk.dim("  To use PortLens you must accept the Privacy Policy.\n")
+    );
+    process.exit(0);
+  }
+}
+
 const VIEWER_BASE = "https://viewer.portlens.net";
 
 /** Convert a WebSocket URL to its HTTP equivalent for REST calls. */
 function wsToHttp(url: string): string {
   return url.replace(/^wss:\/\//, "https://").replace(/^ws:\/\//, "http://");
+}
+
+/**
+ * Normalise a relay URL: auto-prepend wss:// if the protocol is missing,
+ * then validate.  Exits with a clean message on failure.
+ */
+function normaliseRelay(raw: string): string {
+  let url = raw.trim();
+  if (url && !/^wss?:\/\//i.test(url)) {
+    url = `wss://${url}`;
+  }
+  try {
+    new URL(url);
+  } catch {
+    console.error(
+      chalk.red(
+        `  Invalid relay URL: "${raw}"\n` +
+        `  Expected a WebSocket URL, e.g. wss://relay.portlens.net`
+      )
+    );
+    process.exit(1);
+  }
+  return url;
 }
 
 const program = new Command();
@@ -281,10 +396,17 @@ program
   .option("--no-open", "Don't auto-open the viewer URL in the browser")
   .option("--no-screenshot", "Skip automatic screenshot capture")
   .option("--qr", "Print the share URL as a QR code")
-  .action((port: number, opts) => {
-    const cfg      = readConfig();
-    const auth     = readAuth();
-    const relay    = (opts.relay as string | undefined) ?? cfg.relay;
+  .action(async (port: number, opts) => {
+    // ── Privacy Policy gate ───────────────────────────────────────────────
+    await ensurePrivacyConsent();
+
+    const cfg  = readConfig();
+    const auth = readAuth();
+
+    // ── Relay URL normalisation & validation ──────────────────────────────
+    // Accept bare hostnames/domains (e.g. "pankaj.portlens.net") by
+    // auto-prepending wss://.  Reject anything that still doesn't parse.
+    const relay    = normaliseRelay((opts.relay as string | undefined) ?? cfg.relay);
     const name     = (opts.name  as string | undefined) ?? cfg.defaultName;
     const desc     = (opts.desc  as string | undefined) ?? cfg.defaultDesc;
     const jwtToken = auth?.token;
@@ -311,7 +433,7 @@ program
     let reconnectInfo: ReconnectInfo | undefined;
     let boxVisible    = false;
     let refreshTimer: NodeJS.Timeout | null = null;
-    let shareUrl      = `${VIEWER_BASE}/${agent.token}`;
+    let shareUrl      = `${VIEWER_BASE}/v/${agent.token}`;
 
     /** Render a fresh box snapshot using the latest state variables. */
     function boxOpts() {

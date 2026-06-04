@@ -1,4 +1,10 @@
 #!/usr/bin/env node
+#!/usr/bin/env node
+import { createRequire as _createRequire } from 'module';
+import { fileURLToPath as _fileURLToPath } from 'url';
+const require = _createRequire(import.meta.url);
+const __filename = _fileURLToPath(import.meta.url);
+const __dirname = _fileURLToPath(new URL('.', import.meta.url));
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -4097,7 +4103,7 @@ var require_open = __commonJS({
     var isDocker = require_is_docker();
     var defineLazyProperty = require_define_lazy_prop();
     var localXdgOpenPath = path15.join(__dirname, "xdg-open");
-    var { platform, arch } = process;
+    var { platform: platform2, arch } = process;
     var hasContainerEnv = () => {
       try {
         fs11.statSync("/run/.containerenv");
@@ -4179,7 +4185,7 @@ var require_open = __commonJS({
       let command2;
       const cliArguments = [];
       const childProcessOptions = {};
-      if (platform === "darwin") {
+      if (platform2 === "darwin") {
         command2 = "open";
         if (options.wait) {
           cliArguments.push("--wait-apps");
@@ -4193,7 +4199,7 @@ var require_open = __commonJS({
         if (app) {
           cliArguments.push("-a", app);
         }
-      } else if (platform === "win32" || isWsl && !isInsideContainer() && !app) {
+      } else if (platform2 === "win32" || isWsl && !isInsideContainer() && !app) {
         const mountPoint = await getWslDrivesMountPoint();
         command2 = isWsl ? `${mountPoint}c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe` : `${process.env.SYSTEMROOT}\\System32\\WindowsPowerShell\\v1.0\\powershell`;
         cliArguments.push(
@@ -4234,7 +4240,7 @@ var require_open = __commonJS({
             exeLocalXdgOpen = true;
           } catch {
           }
-          const useSystemXdgOpen = process.versions.electron || platform === "android" || isBundled || !exeLocalXdgOpen;
+          const useSystemXdgOpen = process.versions.electron || platform2 === "android" || isBundled || !exeLocalXdgOpen;
           command2 = useSystemXdgOpen ? "xdg-open" : localXdgOpenPath;
         }
         if (appArguments.length > 0) {
@@ -4248,7 +4254,7 @@ var require_open = __commonJS({
       if (options.target) {
         cliArguments.push(options.target);
       }
-      if (platform === "darwin" && appArguments.length > 0) {
+      if (platform2 === "darwin" && appArguments.length > 0) {
         cliArguments.push("--args", ...appArguments);
       }
       const subprocess = childProcess2.spawn(command2, cliArguments, childProcessOptions);
@@ -4302,12 +4308,12 @@ var require_open = __commonJS({
       }
       return archBinary;
     }
-    function detectPlatformBinary({ [platform]: platformBinary }, { wsl }) {
+    function detectPlatformBinary({ [platform2]: platformBinary }, { wsl }) {
       if (wsl && isWsl) {
         return detectArchBinary(wsl);
       }
       if (!platformBinary) {
-        throw new Error(`${platform} is not supported`);
+        throw new Error(`${platform2} is not supported`);
       }
       return detectArchBinary(platformBinary);
     }
@@ -7350,7 +7356,7 @@ var require_websocket = __commonJS({
     var http3 = __require("http");
     var net = __require("net");
     var tls = __require("tls");
-    var { randomBytes: randomBytes2, createHash: createHash2 } = __require("crypto");
+    var { randomBytes: randomBytes2, createHash: createHash3 } = __require("crypto");
     var { Readable } = __require("stream");
     var { URL: URL3 } = __require("url");
     var PerMessageDeflate2 = require_permessage_deflate();
@@ -7941,7 +7947,7 @@ var require_websocket = __commonJS({
           abortHandshake(websocket, socket, "Invalid Upgrade header");
           return;
         }
-        const digest = createHash2("sha1").update(key + GUID).digest("base64");
+        const digest = createHash3("sha1").update(key + GUID).digest("base64");
         if (res.headers["sec-websocket-accept"] !== digest) {
           abortHandshake(websocket, socket, "Invalid Sec-WebSocket-Accept header");
           return;
@@ -8263,7 +8269,7 @@ var require_websocket_server = __commonJS({
     var https2 = __require("https");
     var net = __require("net");
     var tls = __require("tls");
-    var { createHash: createHash2 } = __require("crypto");
+    var { createHash: createHash3 } = __require("crypto");
     var PerMessageDeflate2 = require_permessage_deflate();
     var WebSocket4 = require_websocket();
     var { format: format4, parse } = require_extension();
@@ -8494,7 +8500,7 @@ var require_websocket_server = __commonJS({
         }
         if (this._state > RUNNING)
           return abortHandshake(socket, 503);
-        const digest = createHash2("sha1").update(key + GUID).digest("base64");
+        const digest = createHash3("sha1").update(key + GUID).digest("base64");
         const headers = [
           "HTTP/1.1 101 Switching Protocols",
           "Upgrade: websocket",
@@ -25158,10 +25164,10 @@ var init_NetworkManager = __esm({
           throw error2;
         }
       }
-      async setUserAgent(userAgent, userAgentMetadata, platform) {
+      async setUserAgent(userAgent, userAgentMetadata, platform2) {
         this.#userAgent = userAgent;
         this.#userAgentMetadata = userAgentMetadata;
-        this.#platform = platform;
+        this.#platform = platform2;
         await this.#applyToAllClients(this.#applyUserAgent.bind(this));
       }
       async #applyUserAgent(client) {
@@ -48939,22 +48945,22 @@ var init_Page3 = __esm({
         async setUserAgent(userAgentOrOptions, userAgentMetadata) {
           let userAgent;
           let clientHints;
-          let platform;
+          let platform2;
           if (typeof userAgentOrOptions === "string") {
             userAgent = userAgentOrOptions;
             clientHints = userAgentMetadata;
           } else {
             userAgent = userAgentOrOptions.userAgent ?? null;
             clientHints = userAgentOrOptions.userAgentMetadata;
-            platform = userAgentOrOptions.platform === "" ? void 0 : userAgentOrOptions.platform;
+            platform2 = userAgentOrOptions.platform === "" ? void 0 : userAgentOrOptions.platform;
           }
           if (userAgent === "") {
             userAgent = null;
           }
           await this.#frame.browsingContext.setUserAgent(userAgent);
-          if (platform && platform !== "") {
+          if (platform2 && platform2 !== "") {
             clientHints = clientHints ?? {};
-            clientHints.platform = platform;
+            clientHints.platform = platform2;
           }
           await this.#frame.browsingContext.setClientHintsOverride(clientHints ?? null);
         }
@@ -53328,7 +53334,7 @@ var require_websocket2 = __commonJS({
     var http3 = __require("http");
     var net = __require("net");
     var tls = __require("tls");
-    var { randomBytes: randomBytes2, createHash: createHash2 } = __require("crypto");
+    var { randomBytes: randomBytes2, createHash: createHash3 } = __require("crypto");
     var { Duplex, Readable } = __require("stream");
     var { URL: URL3 } = __require("url");
     var PerMessageDeflate2 = require_permessage_deflate2();
@@ -54008,7 +54014,7 @@ var require_websocket2 = __commonJS({
           abortHandshake(websocket, socket, "Invalid Upgrade header");
           return;
         }
-        const digest = createHash2("sha1").update(key + GUID).digest("base64");
+        const digest = createHash3("sha1").update(key + GUID).digest("base64");
         if (res.headers["sec-websocket-accept"] !== digest) {
           abortHandshake(websocket, socket, "Invalid Sec-WebSocket-Accept header");
           return;
@@ -54395,7 +54401,7 @@ var require_websocket_server2 = __commonJS({
     var EventEmitter5 = __require("events");
     var http3 = __require("http");
     var { Duplex } = __require("stream");
-    var { createHash: createHash2 } = __require("crypto");
+    var { createHash: createHash3 } = __require("crypto");
     var extension2 = require_extension2();
     var PerMessageDeflate2 = require_permessage_deflate2();
     var subprotocol2 = require_subprotocol();
@@ -54704,7 +54710,7 @@ var require_websocket_server2 = __commonJS({
         }
         if (this._state > RUNNING)
           return abortHandshake(socket, 503);
-        const digest = createHash2("sha1").update(key + GUID).digest("base64");
+        const digest = createHash3("sha1").update(key + GUID).digest("base64");
         const headers = [
           "HTTP/1.1 101 Switching Protocols",
           "Upgrade: websocket",
@@ -56999,11 +57005,11 @@ var init_httpUtil = __esm({
 });
 
 // ../../node_modules/@puppeteer/browsers/lib/browser-data/chrome.js
-import { execSync } from "node:child_process";
+import { execSync as execSync2 } from "node:child_process";
 import os2 from "node:os";
 import path from "node:path";
-function folder(platform) {
-  switch (platform) {
+function folder(platform2) {
+  switch (platform2) {
     case BrowserPlatform.LINUX_ARM:
     case BrowserPlatform.LINUX:
       return "linux64";
@@ -57017,23 +57023,23 @@ function folder(platform) {
       return "win64";
   }
 }
-function resolveDownloadUrl(platform, buildId, baseUrl = "https://storage.googleapis.com/chrome-for-testing-public") {
-  return `${baseUrl}/${resolveDownloadPath(platform, buildId).join("/")}`;
+function resolveDownloadUrl(platform2, buildId, baseUrl = "https://storage.googleapis.com/chrome-for-testing-public") {
+  return `${baseUrl}/${resolveDownloadPath(platform2, buildId).join("/")}`;
 }
-function resolveDownloadPath(platform, buildId) {
-  return [buildId, folder(platform), `chrome-${folder(platform)}.zip`];
+function resolveDownloadPath(platform2, buildId) {
+  return [buildId, folder(platform2), `chrome-${folder(platform2)}.zip`];
 }
-function relativeExecutablePath(platform, _buildId) {
-  switch (platform) {
+function relativeExecutablePath(platform2, _buildId) {
+  switch (platform2) {
     case BrowserPlatform.MAC:
     case BrowserPlatform.MAC_ARM:
-      return path.join("chrome-" + folder(platform), "Google Chrome for Testing.app", "Contents", "MacOS", "Google Chrome for Testing");
+      return path.join("chrome-" + folder(platform2), "Google Chrome for Testing.app", "Contents", "MacOS", "Google Chrome for Testing");
     case BrowserPlatform.LINUX_ARM:
     case BrowserPlatform.LINUX:
       return path.join("chrome-linux64", "chrome");
     case BrowserPlatform.WIN32:
     case BrowserPlatform.WIN64:
-      return path.join("chrome-" + folder(platform), "chrome.exe");
+      return path.join("chrome-" + folder(platform2), "chrome.exe");
   }
 }
 async function getLastKnownGoodReleaseForChannel(channel) {
@@ -57089,7 +57095,7 @@ function getChromeWindowsLocation(channel, locationsPrefixes) {
 }
 function getWslVariable(variable) {
   try {
-    const result = execSync(`cmd.exe /c echo %${variable.toLocaleUpperCase()}%`, {
+    const result = execSync2(`cmd.exe /c echo %${variable.toLocaleUpperCase()}%`, {
       // We need to ignore the stderr as cmd.exe
       // prints a message about wrong UNC path not supported.
       stdio: ["ignore", "pipe", "ignore"],
@@ -57103,7 +57109,7 @@ function getWslVariable(variable) {
   return;
 }
 function getWslLocation(channel) {
-  const wslVersion = execSync("wslinfo --version", {
+  const wslVersion = execSync2("wslinfo --version", {
     stdio: ["ignore", "pipe", "ignore"],
     encoding: "utf-8"
   }).trim();
@@ -57119,7 +57125,7 @@ function getWslLocation(channel) {
   }
   const windowsPath = getChromeWindowsLocation(channel, wslPrefixes);
   return windowsPath.map((path15) => {
-    return execSync(`wslpath "${path15}"`).toString().trim();
+    return execSync2(`wslpath "${path15}"`).toString().trim();
   });
 }
 function getChromeLinuxOrWslLocation(channel) {
@@ -57147,8 +57153,8 @@ function getChromeLinuxOrWslLocation(channel) {
   }
   return locations;
 }
-function resolveSystemExecutablePaths(platform, channel) {
-  switch (platform) {
+function resolveSystemExecutablePaths(platform2, channel) {
+  switch (platform2) {
     case BrowserPlatform.WIN64:
     case BrowserPlatform.WIN32:
       const prefixLocation = new Set(WINDOWS_ENV_PARAM_NAMES.map((name) => {
@@ -57186,8 +57192,8 @@ function resolveSystemExecutablePaths(platform, channel) {
       return getChromeLinuxOrWslLocation(channel);
   }
 }
-function resolveDefaultUserDataDir(platform, channel) {
-  switch (platform) {
+function resolveDefaultUserDataDir(platform2, channel) {
+  switch (platform2) {
     case BrowserPlatform.WIN64:
     case BrowserPlatform.WIN32:
       switch (channel) {
@@ -57269,8 +57275,8 @@ var init_chrome = __esm({
 
 // ../../node_modules/@puppeteer/browsers/lib/browser-data/chrome-headless-shell.js
 import path2 from "node:path";
-function folder2(platform) {
-  switch (platform) {
+function folder2(platform2) {
+  switch (platform2) {
     case BrowserPlatform.LINUX_ARM:
     case BrowserPlatform.LINUX:
       return "linux64";
@@ -57284,27 +57290,27 @@ function folder2(platform) {
       return "win64";
   }
 }
-function resolveDownloadUrl2(platform, buildId, baseUrl = "https://storage.googleapis.com/chrome-for-testing-public") {
-  return `${baseUrl}/${resolveDownloadPath2(platform, buildId).join("/")}`;
+function resolveDownloadUrl2(platform2, buildId, baseUrl = "https://storage.googleapis.com/chrome-for-testing-public") {
+  return `${baseUrl}/${resolveDownloadPath2(platform2, buildId).join("/")}`;
 }
-function resolveDownloadPath2(platform, buildId) {
+function resolveDownloadPath2(platform2, buildId) {
   return [
     buildId,
-    folder2(platform),
-    `chrome-headless-shell-${folder2(platform)}.zip`
+    folder2(platform2),
+    `chrome-headless-shell-${folder2(platform2)}.zip`
   ];
 }
-function relativeExecutablePath2(platform, _buildId) {
-  switch (platform) {
+function relativeExecutablePath2(platform2, _buildId) {
+  switch (platform2) {
     case BrowserPlatform.MAC:
     case BrowserPlatform.MAC_ARM:
-      return path2.join("chrome-headless-shell-" + folder2(platform), "chrome-headless-shell");
+      return path2.join("chrome-headless-shell-" + folder2(platform2), "chrome-headless-shell");
     case BrowserPlatform.LINUX_ARM:
     case BrowserPlatform.LINUX:
       return path2.join("chrome-headless-shell-linux64", "chrome-headless-shell");
     case BrowserPlatform.WIN32:
     case BrowserPlatform.WIN64:
-      return path2.join("chrome-headless-shell-" + folder2(platform), "chrome-headless-shell.exe");
+      return path2.join("chrome-headless-shell-" + folder2(platform2), "chrome-headless-shell.exe");
   }
 }
 var init_chrome_headless_shell = __esm({
@@ -57316,8 +57322,8 @@ var init_chrome_headless_shell = __esm({
 
 // ../../node_modules/@puppeteer/browsers/lib/browser-data/chromedriver.js
 import path3 from "node:path";
-function folder3(platform) {
-  switch (platform) {
+function folder3(platform2) {
+  switch (platform2) {
     case BrowserPlatform.LINUX_ARM:
     case BrowserPlatform.LINUX:
       return "linux64";
@@ -57331,23 +57337,23 @@ function folder3(platform) {
       return "win64";
   }
 }
-function resolveDownloadUrl3(platform, buildId, baseUrl = "https://storage.googleapis.com/chrome-for-testing-public") {
-  return `${baseUrl}/${resolveDownloadPath3(platform, buildId).join("/")}`;
+function resolveDownloadUrl3(platform2, buildId, baseUrl = "https://storage.googleapis.com/chrome-for-testing-public") {
+  return `${baseUrl}/${resolveDownloadPath3(platform2, buildId).join("/")}`;
 }
-function resolveDownloadPath3(platform, buildId) {
-  return [buildId, folder3(platform), `chromedriver-${folder3(platform)}.zip`];
+function resolveDownloadPath3(platform2, buildId) {
+  return [buildId, folder3(platform2), `chromedriver-${folder3(platform2)}.zip`];
 }
-function relativeExecutablePath3(platform, _buildId) {
-  switch (platform) {
+function relativeExecutablePath3(platform2, _buildId) {
+  switch (platform2) {
     case BrowserPlatform.MAC:
     case BrowserPlatform.MAC_ARM:
-      return path3.join("chromedriver-" + folder3(platform), "chromedriver");
+      return path3.join("chromedriver-" + folder3(platform2), "chromedriver");
     case BrowserPlatform.LINUX_ARM:
     case BrowserPlatform.LINUX:
       return path3.join("chromedriver-linux64", "chromedriver");
     case BrowserPlatform.WIN32:
     case BrowserPlatform.WIN64:
-      return path3.join("chromedriver-" + folder3(platform), "chromedriver.exe");
+      return path3.join("chromedriver-" + folder3(platform2), "chromedriver.exe");
   }
 }
 var init_chromedriver = __esm({
@@ -57359,8 +57365,8 @@ var init_chromedriver = __esm({
 
 // ../../node_modules/@puppeteer/browsers/lib/browser-data/chromium.js
 import path4 from "node:path";
-function archive(platform, buildId) {
-  switch (platform) {
+function archive(platform2, buildId) {
+  switch (platform2) {
     case BrowserPlatform.LINUX_ARM:
     case BrowserPlatform.LINUX:
       return "chrome-linux";
@@ -57372,8 +57378,8 @@ function archive(platform, buildId) {
       return parseInt(buildId, 10) > 591479 ? "chrome-win" : "chrome-win32";
   }
 }
-function folder4(platform) {
-  switch (platform) {
+function folder4(platform2) {
+  switch (platform2) {
     case BrowserPlatform.LINUX_ARM:
     case BrowserPlatform.LINUX:
       return "Linux_x64";
@@ -57387,14 +57393,14 @@ function folder4(platform) {
       return "Win_x64";
   }
 }
-function resolveDownloadUrl4(platform, buildId, baseUrl = "https://storage.googleapis.com/chromium-browser-snapshots") {
-  return `${baseUrl}/${resolveDownloadPath4(platform, buildId).join("/")}`;
+function resolveDownloadUrl4(platform2, buildId, baseUrl = "https://storage.googleapis.com/chromium-browser-snapshots") {
+  return `${baseUrl}/${resolveDownloadPath4(platform2, buildId).join("/")}`;
 }
-function resolveDownloadPath4(platform, buildId) {
-  return [folder4(platform), buildId, `${archive(platform, buildId)}.zip`];
+function resolveDownloadPath4(platform2, buildId) {
+  return [folder4(platform2), buildId, `${archive(platform2, buildId)}.zip`];
 }
-function relativeExecutablePath4(platform, _buildId) {
-  switch (platform) {
+function relativeExecutablePath4(platform2, _buildId) {
+  switch (platform2) {
     case BrowserPlatform.MAC:
     case BrowserPlatform.MAC_ARM:
       return path4.join("chrome-mac", "Chromium.app", "Contents", "MacOS", "Chromium");
@@ -57406,8 +57412,8 @@ function relativeExecutablePath4(platform, _buildId) {
       return path4.join("chrome-win", "chrome.exe");
   }
 }
-async function resolveBuildId2(platform) {
-  return await getText(new URL(`https://storage.googleapis.com/chromium-browser-snapshots/${folder4(platform)}/LAST_CHANGE`));
+async function resolveBuildId2(platform2) {
+  return await getText(new URL(`https://storage.googleapis.com/chromium-browser-snapshots/${folder4(platform2)}/LAST_CHANGE`));
 }
 function compareVersions2(a2, b2) {
   return Number(a2) - Number(b2);
@@ -57426,8 +57432,8 @@ function getFormat(buildId) {
   const majorVersion = Number(buildId.split(".").shift());
   return majorVersion >= 135 ? "xz" : "bz2";
 }
-function archiveNightly(platform, buildId) {
-  switch (platform) {
+function archiveNightly(platform2, buildId) {
+  switch (platform2) {
     case BrowserPlatform.LINUX:
       return `firefox-${buildId}.en-US.linux-x86_64.tar.${getFormat(buildId)}`;
     case BrowserPlatform.LINUX_ARM:
@@ -57437,11 +57443,11 @@ function archiveNightly(platform, buildId) {
       return `firefox-${buildId}.en-US.mac.dmg`;
     case BrowserPlatform.WIN32:
     case BrowserPlatform.WIN64:
-      return `firefox-${buildId}.en-US.${platform}.zip`;
+      return `firefox-${buildId}.en-US.${platform2}.zip`;
   }
 }
-function archive2(platform, buildId) {
-  switch (platform) {
+function archive2(platform2, buildId) {
+  switch (platform2) {
     case BrowserPlatform.LINUX_ARM:
     case BrowserPlatform.LINUX:
       return `firefox-${buildId}.tar.${getFormat(buildId)}`;
@@ -57453,8 +57459,8 @@ function archive2(platform, buildId) {
       return `Firefox Setup ${buildId}.exe`;
   }
 }
-function platformName(platform) {
-  switch (platform) {
+function platformName(platform2) {
+  switch (platform2) {
     case BrowserPlatform.LINUX:
       return `linux-x86_64`;
     case BrowserPlatform.LINUX_ARM:
@@ -57464,7 +57470,7 @@ function platformName(platform) {
       return `mac`;
     case BrowserPlatform.WIN32:
     case BrowserPlatform.WIN64:
-      return platform;
+      return platform2;
   }
 }
 function parseBuildId(buildId) {
@@ -57476,7 +57482,7 @@ function parseBuildId(buildId) {
   }
   return [FirefoxChannel.NIGHTLY, buildId];
 }
-function resolveDownloadUrl5(platform, buildId, baseUrl) {
+function resolveDownloadUrl5(platform2, buildId, baseUrl) {
   const [channel] = parseBuildId(buildId);
   switch (channel) {
     case FirefoxChannel.NIGHTLY:
@@ -57491,30 +57497,30 @@ function resolveDownloadUrl5(platform, buildId, baseUrl) {
       baseUrl ??= "https://archive.mozilla.org/pub/firefox/releases";
       break;
   }
-  return `${baseUrl}/${resolveDownloadPath5(platform, buildId).join("/")}`;
+  return `${baseUrl}/${resolveDownloadPath5(platform2, buildId).join("/")}`;
 }
-function resolveDownloadPath5(platform, buildId) {
+function resolveDownloadPath5(platform2, buildId) {
   const [channel, resolvedBuildId] = parseBuildId(buildId);
   switch (channel) {
     case FirefoxChannel.NIGHTLY:
-      return [archiveNightly(platform, resolvedBuildId)];
+      return [archiveNightly(platform2, resolvedBuildId)];
     case FirefoxChannel.DEVEDITION:
     case FirefoxChannel.BETA:
     case FirefoxChannel.STABLE:
     case FirefoxChannel.ESR:
       return [
         resolvedBuildId,
-        platformName(platform),
+        platformName(platform2),
         "en-US",
-        archive2(platform, resolvedBuildId)
+        archive2(platform2, resolvedBuildId)
       ];
   }
 }
-function relativeExecutablePath5(platform, buildId) {
+function relativeExecutablePath5(platform2, buildId) {
   const [channel] = parseBuildId(buildId);
   switch (channel) {
     case FirefoxChannel.NIGHTLY:
-      switch (platform) {
+      switch (platform2) {
         case BrowserPlatform.MAC_ARM:
         case BrowserPlatform.MAC:
           return path5.join("Firefox Nightly.app", "Contents", "MacOS", "firefox");
@@ -57529,7 +57535,7 @@ function relativeExecutablePath5(platform, buildId) {
     case FirefoxChannel.DEVEDITION:
     case FirefoxChannel.ESR:
     case FirefoxChannel.STABLE:
-      switch (platform) {
+      switch (platform2) {
         case BrowserPlatform.MAC_ARM:
         case BrowserPlatform.MAC:
           return path5.join("Firefox.app", "Contents", "MacOS", "firefox");
@@ -57777,7 +57783,7 @@ var init_firefox = __esm({
 });
 
 // ../../node_modules/@puppeteer/browsers/lib/browser-data/browser-data.js
-async function resolveBuildIdForBrowserTag(browser, platform, tag) {
+async function resolveBuildIdForBrowserTag(browser, platform2, tag) {
   switch (browser) {
     case Browser3.FIREFOX:
       switch (tag) {
@@ -57852,7 +57858,7 @@ async function resolveBuildIdForBrowserTag(browser, platform, tag) {
     case Browser3.CHROMIUM:
       switch (tag) {
         case BrowserTag.LATEST:
-          return await resolveBuildId2(platform);
+          return await resolveBuildId2(platform2);
         case BrowserTag.NIGHTLY:
         case BrowserTag.CANARY:
         case BrowserTag.DEV:
@@ -57864,10 +57870,10 @@ async function resolveBuildIdForBrowserTag(browser, platform, tag) {
       }
   }
 }
-async function resolveBuildId4(browser, platform, tag) {
+async function resolveBuildId4(browser, platform2, tag) {
   const browserTag = tag;
   if (Object.values(BrowserTag).includes(browserTag)) {
-    return await resolveBuildIdForBrowserTag(browser, platform, browserTag);
+    return await resolveBuildIdForBrowserTag(browser, platform2, browserTag);
   }
   switch (browser) {
     case Browser3.FIREFOX:
@@ -57903,7 +57909,7 @@ async function createProfile2(browser, opts) {
       throw new Error(`Profile creation is not support for ${browser} yet`);
   }
 }
-function resolveDefaultUserDataDir2(browser, platform, channel) {
+function resolveDefaultUserDataDir2(browser, platform2, channel) {
   switch (browser) {
     case Browser3.CHROMEDRIVER:
     case Browser3.CHROMEHEADLESSSHELL:
@@ -57911,10 +57917,10 @@ function resolveDefaultUserDataDir2(browser, platform, channel) {
     case Browser3.CHROMIUM:
       throw new Error(`Default user dir detection is not supported for ${browser} yet.`);
     case Browser3.CHROME:
-      return resolveDefaultUserDataDir(platform, channel);
+      return resolveDefaultUserDataDir(platform2, channel);
   }
 }
-function resolveSystemExecutablePaths2(browser, platform, channel) {
+function resolveSystemExecutablePaths2(browser, platform2, channel) {
   switch (browser) {
     case Browser3.CHROMEDRIVER:
     case Browser3.CHROMEHEADLESSSHELL:
@@ -57922,7 +57928,7 @@ function resolveSystemExecutablePaths2(browser, platform, channel) {
     case Browser3.CHROMIUM:
       throw new Error(`System browser detection is not supported for ${browser} yet.`);
     case Browser3.CHROME:
-      return resolveSystemExecutablePaths(platform, channel);
+      return resolveSystemExecutablePaths(platform2, channel);
   }
 }
 function getVersionComparator(browser) {
@@ -57983,9 +57989,9 @@ var init_debug = __esm({
 // ../../node_modules/@puppeteer/browsers/lib/detectPlatform.js
 import os3 from "node:os";
 function detectBrowserPlatform() {
-  const platform = os3.platform();
+  const platform2 = os3.platform();
   const arch = os3.arch();
-  switch (platform) {
+  switch (platform2) {
     case "darwin":
       return arch === "arm64" ? BrowserPlatform.MAC_ARM : BrowserPlatform.MAC;
     case "linux":
@@ -58023,11 +58029,11 @@ function parseFolderPath(folderPath) {
   if (splits.length !== 2) {
     return;
   }
-  const [platform, buildId] = splits;
-  if (!buildId || !platform) {
+  const [platform2, buildId] = splits;
+  if (!buildId || !platform2) {
     return;
   }
-  return { platform, buildId };
+  return { platform: platform2, buildId };
 }
 var debugCache, InstalledBrowser, Cache;
 var init_Cache = __esm({
@@ -58045,15 +58051,15 @@ var init_Cache = __esm({
       /**
        * @internal
        */
-      constructor(cache, browser, buildId, platform) {
+      constructor(cache, browser, buildId, platform2) {
         this.#cache = cache;
         this.browser = browser;
         this.buildId = buildId;
-        this.platform = platform;
+        this.platform = platform2;
         this.executablePath = cache.computeExecutablePath({
           browser,
           buildId,
-          platform
+          platform: platform2
         });
       }
       /**
@@ -58103,17 +58109,17 @@ var init_Cache = __esm({
         fs2.mkdirSync(path6.dirname(metatadaPath), { recursive: true });
         fs2.writeFileSync(metatadaPath, JSON.stringify(metadata, null, 2));
       }
-      readExecutablePath(browser, platform, buildId) {
+      readExecutablePath(browser, platform2, buildId) {
         const metadata = this.readMetadata(browser);
-        const key = `${platform}-${buildId}`;
+        const key = `${platform2}-${buildId}`;
         return metadata.executablePaths?.[key] ?? null;
       }
-      writeExecutablePath(browser, platform, buildId, executablePath2) {
+      writeExecutablePath(browser, platform2, buildId, executablePath2) {
         const metadata = this.readMetadata(browser);
         if (!metadata.executablePaths) {
           metadata.executablePaths = {};
         }
-        const key = `${platform}-${buildId}`;
+        const key = `${platform2}-${buildId}`;
         metadata.executablePaths[key] = executablePath2;
         this.writeMetadata(browser, metadata);
       }
@@ -58124,8 +58130,8 @@ var init_Cache = __esm({
         }
         return metadata.aliases[alias];
       }
-      installationDir(browser, platform, buildId) {
-        return path6.join(this.browserRoot(browser), `${platform}-${buildId}`);
+      installationDir(browser, platform2, buildId) {
+        return path6.join(this.browserRoot(browser), `${platform2}-${buildId}`);
       }
       clear() {
         fs2.rmSync(this.#rootDir, {
@@ -58135,19 +58141,19 @@ var init_Cache = __esm({
           retryDelay: 500
         });
       }
-      uninstall(browser, platform, buildId) {
+      uninstall(browser, platform2, buildId) {
         const metadata = this.readMetadata(browser);
         for (const alias of Object.keys(metadata.aliases)) {
           if (metadata.aliases[alias] === buildId) {
             delete metadata.aliases[alias];
           }
         }
-        const key = `${platform}-${buildId}`;
+        const key = `${platform2}-${buildId}`;
         if (metadata.executablePaths?.[key]) {
           delete metadata.executablePaths[key];
           this.writeMetadata(browser, metadata);
         }
-        fs2.rmSync(this.installationDir(browser, platform, buildId), {
+        fs2.rmSync(this.installationDir(browser, platform2, buildId), {
           force: true,
           recursive: true,
           maxRetries: 10,
@@ -58577,8 +58583,8 @@ var init_DefaultProvider = __esm({
       getDownloadUrl(options) {
         return this.#getDownloadUrl(options.browser, options.platform, options.buildId);
       }
-      #getDownloadUrl(browser, platform, buildId) {
-        return new URL(downloadUrls[browser](platform, buildId, this.#baseUrl));
+      #getDownloadUrl(browser, platform2, buildId) {
+        return new URL(downloadUrls[browser](platform2, buildId, this.#baseUrl));
       }
       getExecutablePath(options) {
         return executablePathByBrowser[options.browser](options.platform, options.buildId);
@@ -62046,7 +62052,7 @@ var require_progress = __commonJS({
 // ../../node_modules/@puppeteer/browsers/lib/install.js
 import assert3 from "node:assert";
 import { spawnSync as spawnSync2 } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync as existsSync2, readFileSync as readFileSync2 } from "node:fs";
 import { mkdir as mkdir2, unlink } from "node:fs/promises";
 import os6 from "node:os";
 import path8 from "node:path";
@@ -62099,7 +62105,7 @@ async function installWithProviders(options) {
         continue;
       }
       debugInstall?.(`Successfully got URL from ${provider.getName()}: ${url}`);
-      if (!existsSync(browserRoot)) {
+      if (!existsSync2(browserRoot)) {
         await mkdir2(browserRoot, { recursive: true });
       }
       return await installUrl(url, options, provider);
@@ -62131,11 +62137,11 @@ async function installDeps(installedBrowser) {
     return;
   }
   const depsPath = path8.join(path8.dirname(installedBrowser.executablePath), "deb.deps");
-  if (!existsSync(depsPath)) {
+  if (!existsSync2(depsPath)) {
     debugInstall?.(`deb.deps file was not found at ${depsPath}`);
     return;
   }
-  const data = readFileSync(depsPath, "utf-8").split("\n").join(",");
+  const data = readFileSync2(depsPath, "utf-8").split("\n").join(",");
   if (process.getuid?.() !== 0) {
     throw new Error("Installing system dependencies requires root privileges");
   }
@@ -62172,11 +62178,11 @@ async function installUrl(url, options, provider) {
   const cache = new Cache(options.cacheDir);
   const browserRoot = cache.browserRoot(options.browser);
   const archivePath = path8.join(browserRoot, `${options.buildId}-${fileName}`);
-  if (!existsSync(browserRoot)) {
+  if (!existsSync2(browserRoot)) {
     await mkdir2(browserRoot, { recursive: true });
   }
   if (!options.unpack) {
-    if (existsSync(archivePath)) {
+    if (existsSync2(archivePath)) {
       return archivePath;
     }
     debugInstall?.(`Downloading binary from ${url}`);
@@ -62197,8 +62203,8 @@ async function installUrl(url, options, provider) {
     cache.writeExecutablePath(options.browser, options.platform, options.buildId, relativeExecutablePath6);
   }
   try {
-    if (existsSync(outputPath)) {
-      if (!existsSync(installedBrowser.executablePath)) {
+    if (existsSync2(outputPath)) {
+      if (!existsSync2(installedBrowser.executablePath)) {
         throw new Error(`The browser folder (${outputPath}) exists but the executable (${installedBrowser.executablePath}) is missing`);
       }
       await runSetup(installedBrowser);
@@ -62207,7 +62213,7 @@ async function installUrl(url, options, provider) {
       }
       return installedBrowser;
     }
-    if (!existsSync(archivePath)) {
+    if (!existsSync2(archivePath)) {
       debugInstall?.(`Downloading binary from ${url}`);
       try {
         debugTime("download");
@@ -62236,7 +62242,7 @@ async function installUrl(url, options, provider) {
     }
     return installedBrowser;
   } finally {
-    if (existsSync(archivePath)) {
+    if (existsSync2(archivePath)) {
       await unlink(archivePath);
     }
   }
@@ -62247,7 +62253,7 @@ async function runSetup(installedBrowser) {
       debugTime("permissions");
       const browserDir = path8.dirname(installedBrowser.executablePath);
       const setupExePath = path8.join(browserDir, "setup.exe");
-      if (!existsSync(setupExePath)) {
+      if (!existsSync2(setupExePath)) {
         return;
       }
       spawnSync2(path8.join(browserDir, "setup.exe"), [`--configure-browser-in-directory=` + browserDir], {
@@ -62293,8 +62299,8 @@ async function canDownload(options) {
   }
   return false;
 }
-function getDownloadUrl(browser, platform, buildId, baseUrl) {
-  return new URL(downloadUrls[browser](platform, buildId, baseUrl));
+function getDownloadUrl(browser, platform2, buildId, baseUrl) {
+  return new URL(downloadUrls[browser](platform2, buildId, baseUrl));
 }
 async function makeProgressCallback(browser, buildId) {
   const ProgressBarClass2 = await importProgressBarIfNeeded();
@@ -63623,7 +63629,7 @@ var init_yargs_parser = __esm({
 // ../../node_modules/yargs-parser/build/lib/index.js
 import { format as format2 } from "util";
 import { normalize, resolve as resolve3 } from "path";
-import { readFileSync as readFileSync2 } from "fs";
+import { readFileSync as readFileSync3 } from "fs";
 var _a9, _b, _c, minNodeVersion, nodeVersion, env2, parser, yargsParser, lib_default;
 var init_lib2 = __esm({
   "../../node_modules/yargs-parser/build/lib/index.js"() {
@@ -63652,7 +63658,7 @@ var init_lib2 = __esm({
         if (typeof __require !== "undefined") {
           return __require(path15);
         } else if (path15.match(/\.json$/)) {
-          return JSON.parse(readFileSync2(path15, "utf8"));
+          return JSON.parse(readFileSync3(path15, "utf8"));
         } else {
           throw Error("only .json config files are supported in ESM");
         }
@@ -63712,7 +63718,7 @@ var init_yerror = __esm({
 });
 
 // ../../node_modules/y18n/build/lib/platform-shims/node.js
-import { readFileSync as readFileSync3, statSync as statSync2, writeFile } from "fs";
+import { readFileSync as readFileSync4, statSync as statSync2, writeFile } from "fs";
 import { format as format3 } from "util";
 import { resolve as resolve4 } from "path";
 var node_default;
@@ -63720,7 +63726,7 @@ var init_node = __esm({
   "../../node_modules/y18n/build/lib/platform-shims/node.js"() {
     node_default = {
       fs: {
-        readFileSync: readFileSync3,
+        readFileSync: readFileSync4,
         writeFile
       },
       format: format3,
@@ -63917,7 +63923,7 @@ var init_y18n = __esm({
 // ../../node_modules/yargs/lib/platform-shims/esm.mjs
 import { notStrictEqual, strictEqual } from "assert";
 import { inspect } from "util";
-import { readFileSync as readFileSync4 } from "fs";
+import { readFileSync as readFileSync5 } from "fs";
 import { fileURLToPath } from "url";
 import { basename, dirname as dirname2, extname, relative, resolve as resolve5 } from "path";
 var REQUIRE_ERROR, REQUIRE_DIRECTORY_ERROR, __dirname2, mainFilename, esm_default;
@@ -63971,7 +63977,7 @@ var init_esm = __esm({
         nextTick: process.nextTick,
         stdColumns: typeof process.stdout.columns !== "undefined" ? process.stdout.columns : null
       },
-      readFileSync: readFileSync4,
+      readFileSync: readFileSync5,
       require: () => {
         throw new YError(REQUIRE_ERROR);
       },
@@ -67387,8 +67393,8 @@ import * as readline2 from "node:readline";
 function isValidBrowser(browser) {
   return Object.values(Browser3).includes(browser);
 }
-function isValidPlatform(platform) {
-  return Object.values(BrowserPlatform).includes(platform);
+function isValidPlatform(platform2) {
+  return Object.values(BrowserPlatform).includes(platform2);
 }
 var packageVersion2, CLI;
 var init_CLI = __esm({
@@ -67447,11 +67453,11 @@ var init_CLI = __esm({
           desc: "Platform that the binary needs to be compatible with.",
           choices: Object.values(BrowserPlatform),
           default: detectBrowserPlatform(),
-          coerce: (platform) => {
-            if (!isValidPlatform(platform)) {
-              throw new Error(`Unsupported platform '${platform}'`);
+          coerce: (platform2) => {
+            if (!isValidPlatform(platform2)) {
+              throw new Error(`Unsupported platform '${platform2}'`);
             }
-            return platform;
+            return platform2;
           },
           defaultDescription: "Auto-detected"
         });
@@ -67716,8 +67722,8 @@ var init_CLI = __esm({
 });
 
 // ../../node_modules/@puppeteer/browsers/lib/provider.js
-function buildArchiveFilename(browser, platform, buildId, extension2 = "zip") {
-  return `${browser}-${platform}-${buildId}.${extension2}`;
+function buildArchiveFilename(browser, platform2, buildId, extension2 = "zip") {
+  return `${browser}-${platform2}-${buildId}.${extension2}`;
 }
 var init_provider = __esm({
   "../../node_modules/@puppeteer/browsers/lib/provider.js"() {
@@ -67833,14 +67839,14 @@ async function getConnectionTransport(options) {
     };
   } else if (options.channel && isNode) {
     const { detectBrowserPlatform: detectBrowserPlatform2, resolveDefaultUserDataDir: resolveDefaultUserDataDir3, Browser: Browser4 } = await Promise.resolve().then(() => (init_main(), main_exports));
-    const platform = detectBrowserPlatform2();
-    if (!platform) {
+    const platform2 = detectBrowserPlatform2();
+    if (!platform2) {
       throw new Error("Could not detect required browser platform");
     }
     const { convertPuppeteerChannelToBrowsersChannel: convertPuppeteerChannelToBrowsersChannel2 } = await Promise.resolve().then(() => (init_LaunchOptions(), LaunchOptions_exports));
-    const { join: join3 } = await import("node:path");
-    const userDataDir = resolveDefaultUserDataDir3(Browser4.CHROME, platform, convertPuppeteerChannelToBrowsersChannel2(options.channel));
-    const portPath = join3(userDataDir, "DevToolsActivePort");
+    const { join: join5 } = await import("node:path");
+    const userDataDir = resolveDefaultUserDataDir3(Browser4.CHROME, platform2, convertPuppeteerChannelToBrowsersChannel2(options.channel));
+    const portPath = join5(userDataDir, "DevToolsActivePort");
     try {
       const fileContent = await environment.value.fs.promises.readFile(portPath, "ascii");
       const [rawPort, rawPath] = fileContent.split("\n").map((line) => {
@@ -68162,9 +68168,9 @@ var init_PipeTransport = __esm({
 });
 
 // ../../node_modules/puppeteer-core/lib/puppeteer/node/BrowserLauncher.js
-import { existsSync as existsSync2 } from "node:fs";
+import { existsSync as existsSync3 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join as join2 } from "node:path";
+import { join as join3 } from "node:path";
 var BrowserLauncher;
 var init_BrowserLauncher = __esm({
   "../../node_modules/puppeteer-core/lib/puppeteer/node/BrowserLauncher.js"() {
@@ -68212,7 +68218,7 @@ var init_BrowserLauncher = __esm({
           ...options,
           protocol
         });
-        if (!existsSync2(launchArgs.executablePath)) {
+        if (!existsSync3(launchArgs.executablePath)) {
           throw new Error(`Browser was not found at the configured executablePath (${launchArgs.executablePath})`);
         }
         const usePipe = launchArgs.args.includes("--remote-debugging-pipe");
@@ -68289,7 +68295,7 @@ var init_BrowserLauncher = __esm({
           const logs = browserProcess.getRecentLogs().join("\n");
           if (logs.includes("Failed to create a ProcessSingleton for your profile directory") || // On Windows we will not get logs due to the singleton process handover. See
           // https://source.chromium.org/chromium/chromium/src/+/main:chrome/browser/process_singleton_win.cc;l=46;drc=fc7952f0422b5073515a205a04ec9c3a1ae81658
-          process.platform === "win32" && existsSync2(join2(launchArgs.userDataDir, "lockfile"))) {
+          process.platform === "win32" && existsSync3(join3(launchArgs.userDataDir, "lockfile"))) {
             throw new Error(`The browser is already running for ${launchArgs.userDataDir}. Use a different \`userDataDir\` or stop the running browser first.`);
           }
           if (logs.includes("Missing X server") && options.headless === false) {
@@ -68421,7 +68427,7 @@ var init_BrowserLauncher = __esm({
        */
       async getProfilePath() {
         const config2 = await this.puppeteer.configuration();
-        return join2(config2.temporaryDirectory ?? tmpdir(), `puppeteer_dev_${this.browser}_profile-`);
+        return join3(config2.temporaryDirectory ?? tmpdir(), `puppeteer_dev_${this.browser}_profile-`);
       }
       /**
        * @internal
@@ -68430,7 +68436,7 @@ var init_BrowserLauncher = __esm({
         const config2 = await this.puppeteer.configuration();
         let executablePath2 = config2.executablePath;
         if (executablePath2) {
-          if (validatePath && !existsSync2(executablePath2)) {
+          if (validatePath && !existsSync3(executablePath2)) {
             throw new Error(`Tried to find the browser at the configured path (${executablePath2}), but no executable was found.`);
           }
           return executablePath2;
@@ -68455,7 +68461,7 @@ var init_BrowserLauncher = __esm({
           browser: browserType,
           buildId: browserVersion
         });
-        if (validatePath && !existsSync2(executablePath2)) {
+        if (validatePath && !existsSync3(executablePath2)) {
           const configVersion = config2?.[this.browser]?.version;
           if (configVersion) {
             throw new Error(`Tried to find the browser at the configured path (${executablePath2}) for version ${configVersion}, but no executable was found.`);
@@ -69055,8 +69061,8 @@ var init_PuppeteerNode = __esm({
        * @public
        */
       async trimCache() {
-        const platform = detectBrowserPlatform();
-        if (!platform) {
+        const platform2 = detectBrowserPlatform();
+        if (!platform2) {
           throw new Error("The current platform is not supported.");
         }
         const config2 = await this.configuration();
@@ -69078,7 +69084,7 @@ var init_PuppeteerNode = __esm({
         ];
         await Promise.all(puppeteerBrowsers.map(async (item) => {
           const tag = config2?.[item.product]?.version ?? PUPPETEER_REVISIONS[item.product];
-          item.currentBuildId = await resolveBuildId4(item.browser, platform, tag);
+          item.currentBuildId = await resolveBuildId4(item.browser, platform2, tag);
         }));
         const currentBrowserBuilds = new Set(puppeteerBrowsers.map((browser) => {
           return `${browser.browser}_${browser.currentBuildId}`;
@@ -69095,7 +69101,7 @@ var init_PuppeteerNode = __esm({
           }
           await uninstall({
             browser: installedBrowser.browser,
-            platform,
+            platform: platform2,
             cacheDir,
             buildId: installedBrowser.buildId
           });
@@ -69676,6 +69682,9 @@ var import_commander = __toESM(require_commander(), 1);
 import { spawnSync as spawnSync4 } from "node:child_process";
 import { createInterface as createInterface2 } from "node:readline/promises";
 import { stdin as input2, stdout as output2 } from "node:process";
+import { readFileSync as readFileSync6, writeFileSync as writeFileSync2, existsSync as existsSync4, mkdirSync as mkdirSync2 } from "node:fs";
+import { join as join4 } from "node:path";
+import { homedir as homedir2 } from "node:os";
 
 // ../../node_modules/ora/index.js
 import process8 from "node:process";
@@ -73125,7 +73134,79 @@ var import_chalk2 = __toESM(require_source(), 1);
 import fs8 from "node:fs";
 import http2 from "node:http";
 import { EventEmitter as EventEmitter4 } from "node:events";
-import { createHash, randomBytes } from "node:crypto";
+
+// src/deviceId.ts
+import { execSync } from "node:child_process";
+import { createHash, randomUUID } from "node:crypto";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { join } from "node:path";
+import { homedir, platform } from "node:os";
+var CONFIG_DIR = join(homedir(), ".portlens");
+var DEVICE_FILE = join(CONFIG_DIR, "device.json");
+var HASH_SALT = "portlens-device-v1";
+function readMacOs() {
+  const out = execSync(
+    "ioreg -rd1 -c IOPlatformExpertDevice | awk '/IOPlatformUUID/{ print $3 }'",
+    { encoding: "utf8", timeout: 3e3, stdio: ["pipe", "pipe", "pipe"] }
+  );
+  return out.trim().replace(/^"|"$/g, "");
+}
+function readLinux() {
+  for (const p of ["/etc/machine-id", "/var/lib/dbus/machine-id"]) {
+    if (existsSync(p))
+      return readFileSync(p, "utf8").trim();
+  }
+  return "";
+}
+function readWindows() {
+  const out = execSync(
+    "wmic csproduct get uuid /value",
+    { encoding: "utf8", timeout: 3e3, stdio: ["pipe", "pipe", "pipe"] }
+  );
+  return (out.match(/UUID=([A-F0-9-]+)/i)?.[1] ?? "").trim();
+}
+function getMachineId() {
+  try {
+    const os13 = platform();
+    if (os13 === "darwin")
+      return readMacOs();
+    if (os13 === "linux")
+      return readLinux();
+    if (os13 === "win32")
+      return readWindows();
+  } catch {
+  }
+  return "";
+}
+function getOrCreateUUID() {
+  try {
+    if (existsSync(DEVICE_FILE)) {
+      const data = JSON.parse(readFileSync(DEVICE_FILE, "utf8"));
+      if (data.uuid && typeof data.uuid === "string")
+        return data.uuid;
+    }
+  } catch {
+  }
+  const uuid = randomUUID();
+  try {
+    mkdirSync(CONFIG_DIR, { recursive: true });
+    writeFileSync(DEVICE_FILE, JSON.stringify({ uuid }, null, 2) + "\n", "utf8");
+  } catch {
+  }
+  return uuid;
+}
+var _cached;
+function getDeviceFingerprint() {
+  if (_cached)
+    return _cached;
+  const machineId = getMachineId();
+  const raw = machineId.length > 8 ? machineId : getOrCreateUUID();
+  _cached = createHash("sha256").update(HASH_SALT).update(raw).digest("hex");
+  return _cached;
+}
+
+// src/agent.ts
+import { createHash as createHash2, randomBytes } from "node:crypto";
 var BASE58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 function base58Encode(buf) {
   let num = BigInt("0x" + buf.toString("hex"));
@@ -73145,7 +73226,7 @@ function generateToken(length) {
   return base58Encode(randomBytes(Math.ceil(length * 0.75))).slice(0, length);
 }
 function hashPassword(password) {
-  return createHash("sha256").update(password).digest("hex");
+  return createHash2("sha256").update(password).digest("hex");
 }
 var PING_INTERVAL_MS = 3e4;
 var ReconnectionManager = class {
@@ -73210,6 +73291,8 @@ var Agent = class extends EventEmitter4 {
   screenshotDone = false;
   /** Timestamp of the last agent-initiated ping; null when no ping is in-flight. */
   pingTimestamp = null;
+  /** Local WebSocket connections opened on behalf of proxied browser connections. */
+  wsConnections = /* @__PURE__ */ new Map();
   reconnectionManager = new ReconnectionManager();
   token;
   connect() {
@@ -73220,6 +73303,13 @@ var Agent = class extends EventEmitter4 {
   close() {
     this.closing = true;
     this._stopPing();
+    for (const ws of this.wsConnections.values()) {
+      try {
+        ws.close(1001, "Tunnel closing");
+      } catch {
+      }
+    }
+    this.wsConnections.clear();
     if (this.ws) {
       this.ws.removeAllListeners();
       this.ws.close();
@@ -73239,6 +73329,7 @@ var Agent = class extends EventEmitter4 {
         token: this.token,
         appName: name,
         appDesc: desc,
+        deviceFingerprint: getDeviceFingerprint(),
         ...password ? { passwordHash: hashPassword(password) } : {},
         ...jwtToken ? { jwtToken } : {}
       };
@@ -73310,7 +73401,37 @@ var Agent = class extends EventEmitter4 {
       this._forwardRequest(msg);
       return;
     }
+    if (msg.type === "ws-connect") {
+      this._openLocalWs(msg.wsId, msg.path);
+      return;
+    }
+    if (msg.type === "ws-message") {
+      const localWs = this.wsConnections.get(msg.wsId);
+      if (localWs?.readyState === import_ws2.default.OPEN) {
+        const payload = msg.binary ? Buffer.from(msg.data, "base64") : msg.data;
+        localWs.send(payload);
+      }
+      return;
+    }
+    if (msg.type === "ws-close") {
+      const localWs = this.wsConnections.get(msg.wsId);
+      if (localWs) {
+        try {
+          localWs.close(msg.code ?? 1e3, msg.reason ?? "");
+        } catch {
+        }
+        this.wsConnections.delete(msg.wsId);
+      }
+      return;
+    }
     if (msg.type === "error") {
+      if (msg.code === "DEVICE_QUOTA_EXCEEDED") {
+        console.error(
+          import_chalk2.default.red("\n  \u2716  Free plan limit reached for this device.\n") + import_chalk2.default.yellow("     " + msg.message) + "\n"
+        );
+        this.closing = true;
+        process.exit(1);
+      }
       console.error(import_chalk2.default.red(`
   Relay error [${msg.code}]: ${msg.message}`));
     }
@@ -73368,6 +73489,55 @@ var Agent = class extends EventEmitter4 {
     if (reqBody)
       req.write(reqBody);
     req.end();
+  }
+  // ── Local WebSocket proxy ─────────────────────────────────────────────────
+  _openLocalWs(wsId, path15) {
+    const url = `ws://localhost:${this.port}${path15}`;
+    let localWs;
+    try {
+      localWs = new import_ws2.default(url);
+    } catch (err) {
+      this.ws?.send(JSON.stringify({
+        type: "ws-error",
+        wsId,
+        message: err instanceof Error ? err.message : String(err)
+      }));
+      return;
+    }
+    localWs.on("open", () => {
+      this.wsConnections.set(wsId, localWs);
+    });
+    localWs.on("message", (data, isBinary) => {
+      if (this.ws?.readyState !== import_ws2.default.OPEN)
+        return;
+      this.ws.send(JSON.stringify({
+        type: "ws-message",
+        wsId,
+        data: isBinary ? Buffer.from(data).toString("base64") : data.toString(),
+        binary: isBinary
+      }));
+    });
+    localWs.on("close", (code, reason) => {
+      this.wsConnections.delete(wsId);
+      if (this.ws?.readyState === import_ws2.default.OPEN) {
+        this.ws.send(JSON.stringify({
+          type: "ws-close",
+          wsId,
+          code,
+          reason: reason.toString()
+        }));
+      }
+    });
+    localWs.on("error", (err) => {
+      this.wsConnections.delete(wsId);
+      if (this.ws?.readyState === import_ws2.default.OPEN) {
+        this.ws.send(JSON.stringify({
+          type: "ws-error",
+          wsId,
+          message: err.message
+        }));
+      }
+    });
   }
   // ── Screenshot capture ────────────────────────────────────────────────────
   /** Convert the relay WebSocket URL to its HTTP equivalent. */
@@ -73476,8 +73646,8 @@ var Agent = class extends EventEmitter4 {
 import fs9 from "node:fs";
 import path13 from "node:path";
 import os11 from "node:os";
-var CONFIG_DIR = path13.join(os11.homedir(), ".portlens");
-var CONFIG_FILE = path13.join(CONFIG_DIR, "config.json");
+var CONFIG_DIR2 = path13.join(os11.homedir(), ".portlens");
+var CONFIG_FILE = path13.join(CONFIG_DIR2, "config.json");
 var DEFAULTS = {
   relay: "wss://relay.portlens.net",
   defaultName: "My App",
@@ -73493,7 +73663,7 @@ function readConfig() {
   }
 }
 function writeConfig(config2) {
-  fs9.mkdirSync(CONFIG_DIR, { recursive: true });
+  fs9.mkdirSync(CONFIG_DIR2, { recursive: true });
   fs9.writeFileSync(CONFIG_FILE, JSON.stringify(config2, null, 2) + "\n", "utf8");
 }
 function configFilePath() {
@@ -73629,9 +73799,95 @@ function updateBox(opts) {
 }
 
 // src/index.ts
+var CONFIG_DIR3 = join4(homedir2(), ".portlens");
+var CONSENT_FILE = join4(CONFIG_DIR3, "consent.json");
+var POLICY_VERSION = "1.0";
+var POLICY_URL = "https://portlens.net/privacy-policy.html";
+function readConsent() {
+  try {
+    if (!existsSync4(CONSENT_FILE))
+      return null;
+    return JSON.parse(readFileSync6(CONSENT_FILE, "utf8"));
+  } catch {
+    return null;
+  }
+}
+function saveConsent() {
+  try {
+    mkdirSync2(CONFIG_DIR3, { recursive: true });
+    const record = {
+      accepted: true,
+      version: POLICY_VERSION,
+      acceptedAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    writeFileSync2(CONSENT_FILE, JSON.stringify(record, null, 2) + "\n", "utf8");
+  } catch {
+  }
+}
+async function ensurePrivacyConsent() {
+  const existing = readConsent();
+  if (existing?.accepted && existing.version === POLICY_VERSION)
+    return;
+  const isUpdate = existing?.accepted && existing.version !== POLICY_VERSION;
+  console.log();
+  if (isUpdate) {
+    console.log(
+      import_chalk4.default.yellow("  \u2139  The PortLens Privacy Policy has been updated (v" + POLICY_VERSION + ").")
+    );
+  } else {
+    console.log(
+      import_chalk4.default.bold("  PortLens Privacy Policy")
+    );
+  }
+  console.log(
+    import_chalk4.default.dim(`  Before creating a tunnel, please review the Privacy Policy:
+`) + import_chalk4.default.cyan(`  ${POLICY_URL}
+`)
+  );
+  console.log(
+    import_chalk4.default.dim("  By continuing you agree that PortLens may process your data as described,\n") + import_chalk4.default.dim("  including the use of a device fingerprint for free-plan quota management.\n") + import_chalk4.default.dim("  We comply with GDPR, ISO 27001 guidelines, and PCI DSS (via Stripe).\n")
+  );
+  const rl = createInterface2({ input: input2, output: output2 });
+  let answer = "";
+  try {
+    answer = await rl.question(
+      import_chalk4.default.white("  Do you accept the Privacy Policy? ") + import_chalk4.default.dim("[yes/no] ")
+    );
+  } finally {
+    rl.close();
+  }
+  if (answer.trim().toLowerCase().startsWith("y")) {
+    saveConsent();
+    console.log(import_chalk4.default.green("  \u2714  Privacy Policy accepted. Thank you.\n"));
+  } else {
+    console.log(
+      import_chalk4.default.red("\n  Privacy Policy not accepted.\n") + import_chalk4.default.dim(`  You can read the full policy at ${POLICY_URL}
+`) + import_chalk4.default.dim("  To use PortLens you must accept the Privacy Policy.\n")
+    );
+    process.exit(0);
+  }
+}
 var VIEWER_BASE = "https://viewer.portlens.net";
 function wsToHttp(url) {
   return url.replace(/^wss:\/\//, "https://").replace(/^ws:\/\//, "http://");
+}
+function normaliseRelay(raw) {
+  let url = raw.trim();
+  if (url && !/^wss?:\/\//i.test(url)) {
+    url = `wss://${url}`;
+  }
+  try {
+    new URL(url);
+  } catch {
+    console.error(
+      import_chalk4.default.red(
+        `  Invalid relay URL: "${raw}"
+  Expected a WebSocket URL, e.g. wss://relay.portlens.net`
+      )
+    );
+    process.exit(1);
+  }
+  return url;
 }
 var program = new import_commander.Command();
 program.name("portlens").description("Share your local server with anyone, instantly.");
@@ -73811,10 +74067,11 @@ program.argument("<port>", "Local port to tunnel", (v2) => {
     process.exit(1);
   }
   return n;
-}).option("--name <string>", "App name shown in the viewer").option("--desc <string>", "One-line description").option("--password <string>", "Protect the share link with a password").option("--relay <url>", "Override relay WebSocket URL").option("--no-open", "Don't auto-open the viewer URL in the browser").option("--no-screenshot", "Skip automatic screenshot capture").option("--qr", "Print the share URL as a QR code").action((port, opts) => {
+}).option("--name <string>", "App name shown in the viewer").option("--desc <string>", "One-line description").option("--password <string>", "Protect the share link with a password").option("--relay <url>", "Override relay WebSocket URL").option("--no-open", "Don't auto-open the viewer URL in the browser").option("--no-screenshot", "Skip automatic screenshot capture").option("--qr", "Print the share URL as a QR code").action(async (port, opts) => {
+  await ensurePrivacyConsent();
   const cfg = readConfig();
   const auth = readAuth();
-  const relay = opts.relay ?? cfg.relay;
+  const relay = normaliseRelay(opts.relay ?? cfg.relay);
   const name = opts.name ?? cfg.defaultName;
   const desc = opts.desc ?? cfg.defaultDesc;
   const jwtToken = auth?.token;
@@ -73837,7 +74094,7 @@ program.argument("<port>", "Local port to tunnel", (v2) => {
   let reconnectInfo;
   let boxVisible = false;
   let refreshTimer = null;
-  let shareUrl = `${VIEWER_BASE}/${agent.token}`;
+  let shareUrl = `${VIEWER_BASE}/v/${agent.token}`;
   function boxOpts() {
     return { shareUrl, localPort: port, expiresAt, status: currentStatus, rtt: currentRtt, reconnectInfo };
   }
