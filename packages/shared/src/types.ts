@@ -4,35 +4,9 @@ export type TunnelStatus =
   | "reconnecting"
   | "disconnected";
 
-export type TunnelMessage =
-  | {
-      type: "register";
-      token: string;
-      userId?: string;
-      appName?: string;
-      appDesc?: string;
-      passwordHash?: string;
-      /** Signed JWT from ~/.portlens/auth.json — relay verifies and sets userId/expiresAt */
-      jwtToken?: string;
-    }
-  | {
-      type: "request";
-      requestId: string;
-      method: string;
-      path: string;
-      headers: Record<string, string>;
-      body?: string;
-    }
-  | {
-      type: "response";
-      requestId: string;
-      statusCode: number;
-      headers: Record<string, string>;
-      body: string;
-    }
-  | { type: "ping" }
-  | { type: "pong" }
-  | { type: "error"; code: string; message: string };
+// The tunnel wire protocol lives in protocol.ts as zod schemas; the
+// TunnelMessage type is derived from them so types and validators stay in sync.
+export type { TunnelMessage, FrameType } from "./protocol.js";
 
 export type UserPlan = "free" | "pro";
 

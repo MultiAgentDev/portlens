@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.formatExpiry = exports.isExpired = exports.hashPassword = exports.generateToken = void 0;
+exports.formatExpiry = exports.isExpired = exports.hashPassword = exports.generateToken = exports.safeParseTunnelMessage = exports.TunnelMessageSchema = void 0;
+var protocol_js_1 = require("./protocol.js");
+Object.defineProperty(exports, "TunnelMessageSchema", { enumerable: true, get: function () { return protocol_js_1.TunnelMessageSchema; } });
+Object.defineProperty(exports, "safeParseTunnelMessage", { enumerable: true, get: function () { return protocol_js_1.safeParseTunnelMessage; } });
 var utils_js_1 = require("./utils.js");
 Object.defineProperty(exports, "generateToken", { enumerable: true, get: function () { return utils_js_1.generateToken; } });
 Object.defineProperty(exports, "hashPassword", { enumerable: true, get: function () { return utils_js_1.hashPassword; } });

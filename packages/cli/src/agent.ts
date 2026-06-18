@@ -3,6 +3,7 @@ import http from "node:http";
 import { EventEmitter } from "node:events";
 import WebSocket from "ws";
 import chalk from "chalk";
+import { getDeviceFingerprint } from "./deviceId.js";
 // ── Inlined from @portlens/shared (kept private / not on npm) ────────────────
 import { createHash, randomBytes } from "node:crypto";
 
@@ -21,14 +22,22 @@ function hashPassword(password: string): string {
   return createHash("sha256").update(password).digest("hex");
 }
 
-// ── TunnelMessage type (from @portlens/shared) ────────────────────────────────
+// ── TunnelMessage type (mirrors @portlens/shared protocol.ts) ─────────────────
+// The CLI is bundled standalone and does not depend on @portlens/shared at
+// runtime, so the wire protocol is mirrored here. Keep in sync with
+// packages/shared/src/protocol.ts.
 type TunnelMessage =
-  | { type: "register"; token: string; userId?: string; appName?: string; appDesc?: string; passwordHash?: string; jwtToken?: string }
+  | { type: "register"; token: string; userId?: string; appName?: string; appDesc?: string; passwordHash?: string; jwtToken?: string; deviceFingerprint?: string }
+  | { type: "tunnel-ready"; token: string; expiresAt: string | null; plan: "free" | "pro" }
   | { type: "request"; requestId: string; method: string; path: string; headers: Record<string, string>; body?: string }
   | { type: "response"; requestId: string; statusCode: number; headers: Record<string, string>; body: string }
   | { type: "error"; code: string; message: string }
   | { type: "ping" }
-  | { type: "pong" };
+  | { type: "pong" }
+  | { type: "ws-connect"; wsId: string; path: string }
+  | { type: "ws-message"; wsId: string; data: string; binary: boolean }
+  | { type: "ws-close"; wsId: string; code?: number; reason?: string }
+  | { type: "ws-error"; wsId: string; message: string };
 
 // ── Timing constants ──────────────────────────────────────────────────────────
 
@@ -47,8 +56,8 @@ const PING_INTERVAL_MS = 30_000;
 export class ReconnectionManager {
   private attempts = 0;
   private readonly maxAttempts = 10;
-  private readonly baseDelay = 1_000;   // 1 s
-  private readonly maxDelay = 30_000;  // 30 s
+  private readonly baseDelay   = 1_000;   // 1 s
+  private readonly maxDelay    = 30_000;  // 30 s
 
   /**
    * Compute the next delay with full-jitter:
@@ -56,7 +65,7 @@ export class ReconnectionManager {
    *   result = base + base × 0.2 × random()
    */
   getDelay(): number {
-    const base = Math.min(this.baseDelay * 2 ** this.attempts, this.maxDelay);
+    const base   = Math.min(this.baseDelay * 2 ** this.attempts, this.maxDelay);
     const jitter = base * 0.2 * Math.random();
     return base + jitter;
   }
@@ -114,6 +123,12 @@ export interface AgentOptions {
   jwtToken?: string;
   /** Skip automatic screenshot capture after connect */
   noScreenshot?: boolean;
+  /**
+   * Machine-readable mode: suppress all human-formatted stdout writes so the
+   * caller (index.ts) owns the NDJSON event stream. Errors are surfaced as
+   * "relay-error" events instead of being printed.
+   */
+  json?: boolean;
 }
 
 // ── Agent ─────────────────────────────────────────────────────────────────────
@@ -126,6 +141,9 @@ export class Agent extends EventEmitter {
 
   /** Timestamp of the last agent-initiated ping; null when no ping is in-flight. */
   private pingTimestamp: number | null = null;
+
+  /** Local WebSocket connections opened on behalf of proxied browser connections. */
+  private readonly wsConnections = new Map<string, WebSocket>();
 
   private readonly reconnectionManager = new ReconnectionManager();
 
@@ -147,6 +165,10 @@ export class Agent extends EventEmitter {
   close(): void {
     this.closing = true;
     this._stopPing();
+    for (const ws of this.wsConnections.values()) {
+      try { ws.close(1001, "Tunnel closing"); } catch { /* ignore */ }
+    }
+    this.wsConnections.clear();
     if (this.ws) {
       this.ws.removeAllListeners();
       this.ws.close();
@@ -158,8 +180,8 @@ export class Agent extends EventEmitter {
   private _openSocket(): void {
     const { relay, name, desc, password, jwtToken } = this.options;
     const url = `${relay}/agent?token=${this.token}`;
-    const ws = new WebSocket(url);
-    this.ws = ws;
+    const ws  = new WebSocket(url);
+    this.ws   = ws;
 
     ws.on("open", () => {
       // A successful open resets the back-off counter.
@@ -167,12 +189,13 @@ export class Agent extends EventEmitter {
       this.pingTimestamp = null;
 
       const msg: TunnelMessage = {
-        type: "register",
-        token: this.token,
-        appName: name,
-        appDesc: desc,
+        type:              "register",
+        token:             this.token,
+        appName:           name,
+        appDesc:           desc,
+        deviceFingerprint: getDeviceFingerprint(),
         ...(password ? { passwordHash: hashPassword(password) } : {}),
-        ...(jwtToken ? { jwtToken } : {}),
+        ...(jwtToken ? { jwtToken }                              : {}),
       };
       ws.send(JSON.stringify(msg));
 
@@ -225,7 +248,7 @@ export class Agent extends EventEmitter {
   private _stopPing(): void {
     if (this.pingTimer) {
       clearInterval(this.pingTimer);
-      this.pingTimer = null;
+      this.pingTimer    = null;
       this.pingTimestamp = null;
     }
   }
@@ -254,13 +277,61 @@ export class Agent extends EventEmitter {
       return;
     }
 
+    // Relay confirmed registration — carries the real expiry and plan.
+    if (msg.type === "tunnel-ready") {
+      this.emit("ready", { expiresAt: msg.expiresAt, plan: msg.plan });
+      return;
+    }
+
     if (msg.type === "request") {
       this._forwardRequest(msg);
       return;
     }
 
+    if (msg.type === "ws-connect") {
+      this._openLocalWs(msg.wsId, msg.path);
+      return;
+    }
+
+    if (msg.type === "ws-message") {
+      const localWs = this.wsConnections.get(msg.wsId);
+      if (localWs?.readyState === WebSocket.OPEN) {
+        const payload = msg.binary ? Buffer.from(msg.data, "base64") : msg.data;
+        localWs.send(payload);
+      }
+      return;
+    }
+
+    if (msg.type === "ws-close") {
+      const localWs = this.wsConnections.get(msg.wsId);
+      if (localWs) {
+        try { localWs.close(msg.code ?? 1000, msg.reason ?? ""); } catch { /* ignore */ }
+        this.wsConnections.delete(msg.wsId);
+      }
+      return;
+    }
+
     if (msg.type === "error") {
-      console.error(chalk.red(`\n  Relay error [${msg.code}]: ${msg.message}`));
+      // Surface as an event so `--json` callers can render it; humans get the
+      // chalk-formatted version unless suppressed by json mode.
+      this.emit("relay-error", { code: msg.code, message: msg.message });
+
+      if (msg.code === "DEVICE_QUOTA_EXCEEDED") {
+        if (!this.options.json) {
+          console.error(
+            chalk.red("\n  ✖  Free plan limit reached for this device.\n") +
+            chalk.yellow("     " + msg.message) +
+            "\n"
+          );
+        }
+        this.closing = true;
+        process.exit(1);
+      }
+
+      if (!this.options.json) {
+        console.error(chalk.red(`\n  Relay error [${msg.code}]: ${msg.message}`));
+      }
+      return;
     }
   }
 
@@ -272,7 +343,7 @@ export class Agent extends EventEmitter {
 
     const options: http.RequestOptions = {
       hostname: "localhost",
-      port: this.port,
+      port:     this.port,
       method,
       path,
       headers: {
@@ -288,11 +359,11 @@ export class Agent extends EventEmitter {
       respBody: Buffer
     ) => {
       const outMsg: TunnelMessage = {
-        type: "response",
+        type:       "response",
         requestId,
         statusCode,
-        headers: respHeaders,
-        body: respBody.toString("base64"),
+        headers:    respHeaders,
+        body:       respBody.toString("base64"),
       };
       if (this.ws?.readyState === WebSocket.OPEN) {
         this.ws.send(JSON.stringify(outMsg));
@@ -305,8 +376,8 @@ export class Agent extends EventEmitter {
       res.on("end", () => {
         const respHeaders: Record<string, string> = {};
         for (const [k, v] of Object.entries(res.headers)) {
-          if (typeof v === "string") respHeaders[k] = v;
-          else if (Array.isArray(v)) respHeaders[k] = v.join(", ");
+          if (typeof v === "string")   respHeaders[k] = v;
+          else if (Array.isArray(v))   respHeaders[k] = v.join(", ");
         }
         respond(res.statusCode ?? 500, respHeaders, Buffer.concat(chunks));
       });
@@ -327,7 +398,68 @@ export class Agent extends EventEmitter {
     req.end();
   }
 
+  // ── Local WebSocket proxy ─────────────────────────────────────────────────
+
+  private _openLocalWs(wsId: string, path: string): void {
+    const url = `ws://localhost:${this.port}${path}`;
+    let localWs: WebSocket;
+    try {
+      localWs = new WebSocket(url);
+    } catch (err) {
+      this.ws?.send(JSON.stringify({
+        type: "ws-error",
+        wsId,
+        message: err instanceof Error ? err.message : String(err),
+      }));
+      return;
+    }
+
+    localWs.on("open", () => {
+      this.wsConnections.set(wsId, localWs);
+    });
+
+    localWs.on("message", (data, isBinary) => {
+      if (this.ws?.readyState !== WebSocket.OPEN) return;
+      this.ws.send(JSON.stringify({
+        type: "ws-message",
+        wsId,
+        data: isBinary
+          ? Buffer.from(data as Buffer).toString("base64")
+          : data.toString(),
+        binary: isBinary,
+      }));
+    });
+
+    localWs.on("close", (code, reason) => {
+      this.wsConnections.delete(wsId);
+      if (this.ws?.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify({
+          type: "ws-close",
+          wsId,
+          code,
+          reason: reason.toString(),
+        }));
+      }
+    });
+
+    localWs.on("error", (err) => {
+      this.wsConnections.delete(wsId);
+      if (this.ws?.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify({
+          type: "ws-error",
+          wsId,
+          message: err.message,
+        }));
+      }
+    });
+  }
+
   // ── Screenshot capture ────────────────────────────────────────────────────
+
+  /** Write a human-readable status line, unless we're in machine (--json) mode. */
+  private _statusLog(line: string): void {
+    if (!this.options.json) console.log(line);
+  }
 
   /** Convert the relay WebSocket URL to its HTTP equivalent. */
   private _relayHttp(): string {
@@ -380,7 +512,7 @@ export class Agent extends EventEmitter {
       process.env["PUPPETEER_EXECUTABLE_PATH"] ?? this._findChrome() ?? undefined;
 
     if (!executablePath) {
-      console.log(
+      this._statusLog(
         chalk.dim(
           "  Screenshot skipped — no Chrome found. " +
           "Set PUPPETEER_EXECUTABLE_PATH to enable."
@@ -393,7 +525,7 @@ export class Agent extends EventEmitter {
     try {
       puppeteer = await import("puppeteer-core");
     } catch {
-      console.log(chalk.dim("  Screenshot skipped — puppeteer-core not available."));
+      this._statusLog(chalk.dim("  Screenshot skipped — puppeteer-core not available."));
       return;
     }
 
@@ -414,28 +546,28 @@ export class Agent extends EventEmitter {
 
       await page.goto(`http://localhost:${this.port}`, {
         waitUntil: "load",
-        timeout: 15_000,
+        timeout:   15_000,
       });
 
-      const shot = await page.screenshot({ type: "webp", quality: 80 });
+      const shot       = await page.screenshot({ type: "webp", quality: 80 });
       const imageBase64 = Buffer.from(shot).toString("base64");
 
       const res = await fetch(
         `${this._relayHttp()}/session/${this.token}/screenshot`,
         {
-          method: "POST",
+          method:  "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ imageBase64 }),
+          body:    JSON.stringify({ imageBase64 }),
         }
       );
 
       if (res.ok) {
-        console.log(chalk.dim("  Screenshot captured."));
+        this._statusLog(chalk.dim("  Screenshot captured."));
       } else {
-        console.log(chalk.dim(`  Screenshot upload failed (HTTP ${res.status}).`));
+        this._statusLog(chalk.dim(`  Screenshot upload failed (HTTP ${res.status}).`));
       }
     } catch (err) {
-      console.log(
+      this._statusLog(
         chalk.yellow(
           `  Screenshot warning: ${err instanceof Error ? err.message : String(err)}`
         )

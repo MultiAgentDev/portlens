@@ -1,14 +1,19 @@
 {
   "name": "@portlens/shared",
-  "version": "1.0.0",
-  "private": true,
+  "version": "1.0.3",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "lint": "eslint src/",
     "test": "echo \"No tests yet\" && exit 0"
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "typescript": "*"

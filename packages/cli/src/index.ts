@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { spawnSync } from "node:child_process";
 import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
@@ -16,13 +15,26 @@ import { readAuth, writeAuth, deleteAuth } from "./authStore.js";
 import { printBox, updateBox } from "./display.js";
 import type { TunnelStatus, ReconnectInfo } from "./display.js";
 
+// ── Structured (--json) output ────────────────────────────────────────────────
+
+/**
+ * Write one newline-delimited JSON event to stdout. Used only in `--json` mode
+ * so a parent process can parse tunnel lifecycle events without scraping ASCII.
+ * Every line has the shape `{ ts, event, ...data }`.
+ */
+function emitJson(event: string, data: Record<string, unknown> = {}): void {
+  process.stdout.write(
+    JSON.stringify({ ts: new Date().toISOString(), event, ...data }) + "\n"
+  );
+}
+
 // ── Privacy Policy consent ────────────────────────────────────────────────────
 
-const CONFIG_DIR    = join(homedir(), ".portlens");
-const CONSENT_FILE  = join(CONFIG_DIR, "consent.json");
+const CONFIG_DIR = join(homedir(), ".portlens");
+const CONSENT_FILE = join(CONFIG_DIR, "consent.json");
 /** Bump this version string whenever the privacy policy changes materially. */
 const POLICY_VERSION = "1.0";
-const POLICY_URL     = "https://portlens.net/privacy-policy.html";
+const POLICY_URL = "https://portlens.net/privacy-policy.html";
 
 interface ConsentRecord {
   accepted: boolean;
@@ -55,10 +67,23 @@ function saveConsent(): void {
  * Ensure the user has accepted the Privacy Policy before starting a tunnel.
  * Prompts once; acceptance is stored in ~/.portlens/consent.json.
  * Re-prompts if the stored policy version differs from the current one.
+ *
+ * In `nonInteractive` mode (e.g. `--json` automation) we cannot prompt, so an
+ * un-accepted policy is a hard error: emit a structured message and exit.
  */
-async function ensurePrivacyConsent(): Promise<void> {
+async function ensurePrivacyConsent(nonInteractive = false): Promise<void> {
   const existing = readConsent();
   if (existing?.accepted && existing.version === POLICY_VERSION) return;
+
+  if (nonInteractive) {
+    emitJson("error", {
+      code: "PRIVACY_POLICY_NOT_ACCEPTED",
+      message:
+        `You must accept the Privacy Policy (${POLICY_URL}) before tunnelling. ` +
+        "Run `portlens <port>` once interactively to accept, then retry.",
+    });
+    process.exit(1);
+  }
 
   const isUpdate = existing?.accepted && existing.version !== POLICY_VERSION;
 
@@ -146,9 +171,9 @@ program
   .command("login")
   .description("Log in to PortLens with a magic link")
   .action(async () => {
-    const cfg  = readConfig();
+    const cfg = readConfig();
     const base = wsToHttp(cfg.relay);
-    const rl   = createInterface({ input, output });
+    const rl = createInterface({ input, output });
 
     try {
       const email = (await rl.question(chalk.cyan("  Email: "))).trim();
@@ -201,9 +226,9 @@ program
       writeAuth({
         token: data.token,
         user: {
-          id:              data.user.id,
-          email:           data.user.email,
-          plan:            data.user.plan as "free" | "pro",
+          id: data.user.id,
+          email: data.user.email,
+          plan: data.user.plan as "free" | "pro",
           customSubdomain: data.user.customSubdomain,
         },
       });
@@ -257,15 +282,15 @@ program
       process.exit(1);
     }
 
-    const cfg  = readConfig();
+    const cfg = readConfig();
     const base = wsToHttp(cfg.relay);
 
     const spinner = ora("Loading referral info…").start();
     let data: {
       user: {
-        referralCode:         string | null;
+        referralCode: string | null;
         referralBonusMinutes: number;
-        referralCount:        number;
+        referralCount: number;
       };
     };
 
@@ -297,10 +322,10 @@ program
       return;
     }
 
-    const link   = `https://portlens.net/?ref=${referralCode}`;
-    const hours  = Math.floor(referralBonusMinutes / 60);
-    const mins   = referralBonusMinutes % 60;
-    const bonus  = hours > 0 ? `${hours}h ${String(mins).padStart(2, "0")}m` : `${mins}m`;
+    const link = `https://portlens.net/?ref=${referralCode}`;
+    const hours = Math.floor(referralBonusMinutes / 60);
+    const mins = referralBonusMinutes % 60;
+    const bonus = hours > 0 ? `${hours}h ${String(mins).padStart(2, "0")}m` : `${mins}m`;
     const people = referralCount === 1 ? "person" : "people";
 
     console.log();
@@ -327,7 +352,7 @@ program
       process.exit(1);
     }
 
-    const cfg  = readConfig();
+    const cfg = readConfig();
     const base = wsToHttp(cfg.relay);
 
     const spinner = ora("Opening checkout…").start();
@@ -396,44 +421,55 @@ program
   .option("--no-open", "Don't auto-open the viewer URL in the browser")
   .option("--no-screenshot", "Skip automatic screenshot capture")
   .option("--qr", "Print the share URL as a QR code")
+  .option("--json", "Emit machine-readable NDJSON events instead of the formatted box")
   .action(async (port: number, opts) => {
-    // ── Privacy Policy gate ───────────────────────────────────────────────
-    await ensurePrivacyConsent();
+    const json = Boolean(opts.json);
 
-    const cfg  = readConfig();
+    // ── Privacy Policy gate ───────────────────────────────────────────────
+    await ensurePrivacyConsent(json);
+
+    const cfg = readConfig();
     const auth = readAuth();
 
     // ── Relay URL normalisation & validation ──────────────────────────────
     // Accept bare hostnames/domains (e.g. "pankaj.portlens.net") by
     // auto-prepending wss://.  Reject anything that still doesn't parse.
-    const relay    = normaliseRelay((opts.relay as string | undefined) ?? cfg.relay);
-    const name     = (opts.name  as string | undefined) ?? cfg.defaultName;
-    const desc     = (opts.desc  as string | undefined) ?? cfg.defaultDesc;
+    const relay = normaliseRelay((opts.relay as string | undefined) ?? cfg.relay);
+    const name = (opts.name as string | undefined) ?? cfg.defaultName;
+    const desc = (opts.desc as string | undefined) ?? cfg.defaultDesc;
     const jwtToken = auth?.token;
 
-    if (auth) {
+    if (auth && !json) {
       console.log(chalk.dim(`  Tunneling as ${auth.user.email} (${auth.user.plan} plan)`));
     }
 
     const agent = new Agent(port, {
       name,
       desc,
-      password:     opts.password as string | undefined,
+      password: opts.password as string | undefined,
       relay,
-      noOpen:       opts.open === false,
+      noOpen: opts.open === false,
       jwtToken,
       noScreenshot: opts.screenshot === false,
+      json,
     });
 
-    const spinner = ora(`Connecting to relay (port ${port})…`).start();
+    const shareUrl = `${VIEWER_BASE}/v/${agent.token}`;
+
+    if (json) {
+      emitJson("connecting", { token: agent.token, localPort: port, relay, shareUrl });
+    }
+
+    // In --json mode the formatted spinner/box are suppressed; the NDJSON
+    // event stream is the only stdout output.
+    const spinner = json ? null : ora(`Connecting to relay (port ${port})…`).start();
 
     let currentStatus: TunnelStatus = "connecting" as TunnelStatus;
     let expiresAt: string | null = null;
     let currentRtt: number | undefined;
     let reconnectInfo: ReconnectInfo | undefined;
-    let boxVisible    = false;
+    let boxVisible = false;
     let refreshTimer: NodeJS.Timeout | null = null;
-    let shareUrl      = `${VIEWER_BASE}/v/${agent.token}`;
 
     /** Render a fresh box snapshot using the latest state variables. */
     function boxOpts() {
@@ -450,11 +486,16 @@ program
 
     // ── First connect ────────────────────────────────────────────────────────
     agent.once("connected", () => {
-      spinner.stop();
-      currentStatus  = "connected";
-      reconnectInfo  = undefined;
-      boxVisible     = true;
+      currentStatus = "connected";
+      reconnectInfo = undefined;
 
+      if (json) {
+        emitJson("connected", { token: agent.token, localPort: port, shareUrl });
+        return;
+      }
+
+      spinner?.stop();
+      boxVisible = true;
       printBox(boxOpts());
       startRefresh();
 
@@ -468,33 +509,74 @@ program
       }
     });
 
+    // ── Tunnel ready (relay confirmed registration; carries real expiry) ─────
+    agent.on("ready", (info: { expiresAt: string | null; plan: "free" | "pro" }) => {
+      expiresAt = info.expiresAt;
+      if (json) {
+        emitJson("ready", {
+          token: agent.token,
+          localPort: port,
+          shareUrl,
+          expiresAt: info.expiresAt,
+          plan: info.plan,
+        });
+        return;
+      }
+      if (boxVisible) updateBox(boxOpts());
+    });
+
     // ── Reconnect started ────────────────────────────────────────────────────
     // Agent emits (delayMs, attempt, maxAttempts) from ReconnectionManager.
     agent.on("reconnecting", (delayMs: number, attempt: number, maxAttempts: number) => {
       currentStatus = "reconnecting";
-      currentRtt    = undefined;  // RTT is stale while disconnected
+      currentRtt = undefined;  // RTT is stale while disconnected
       reconnectInfo = { delayMs, attempt, maxAttempts };
+      if (json) {
+        emitJson("reconnecting", { delayMs, attempt, maxAttempts });
+        return;
+      }
       if (boxVisible) updateBox(boxOpts());
     });
 
     // ── Reconnected (subsequent connects after first) ────────────────────────
+    // `once` and `on` both fire on the very first "connected" emit, so skip the
+    // first invocation here — that one is owned by the once() handler above.
+    let sawFirstConnected = false;
     agent.on("connected", () => {
+      if (!sawFirstConnected) { sawFirstConnected = true; return; }
       currentStatus = "connected";
       reconnectInfo = undefined;
+      if (json) {
+        emitJson("reconnected", { token: agent.token, shareUrl });
+        return;
+      }
       if (boxVisible) updateBox(boxOpts());
     });
 
     // ── RTT update (every ~30 s once the ping/pong cycle starts) ────────────
     agent.on("rtt", (ms: number) => {
       currentRtt = ms;
+      if (json) {
+        emitJson("rtt", { rttMs: ms });
+        return;
+      }
       if (boxVisible && currentStatus === "connected") updateBox(boxOpts());
     });
 
+    // ── Relay-side error (json mode renders it; humans got the chalk version) ─
+    agent.on("relay-error", (err: { code: string; message: string }) => {
+      if (json) emitJson("error", { code: err.code, message: err.message });
+    });
+
     process.on("SIGINT", () => {
-      spinner.stop();
+      spinner?.stop();
       if (refreshTimer) clearInterval(refreshTimer);
       agent.close();
-      console.log(chalk.gray("\n  Tunnel closed."));
+      if (json) {
+        emitJson("closed", { token: agent.token });
+      } else {
+        console.log(chalk.gray("\n  Tunnel closed."));
+      }
       process.exit(0);
     });
 

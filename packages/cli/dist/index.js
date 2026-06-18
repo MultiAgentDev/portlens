@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-#!/usr/bin/env node
 import { createRequire as _createRequire } from 'module';
 import { fileURLToPath as _fileURLToPath } from 'url';
 const require = _createRequire(import.meta.url);
@@ -73397,6 +73396,10 @@ var Agent = class extends EventEmitter4 {
       }
       return;
     }
+    if (msg.type === "tunnel-ready") {
+      this.emit("ready", { expiresAt: msg.expiresAt, plan: msg.plan });
+      return;
+    }
     if (msg.type === "request") {
       this._forwardRequest(msg);
       return;
@@ -73425,15 +73428,21 @@ var Agent = class extends EventEmitter4 {
       return;
     }
     if (msg.type === "error") {
+      this.emit("relay-error", { code: msg.code, message: msg.message });
       if (msg.code === "DEVICE_QUOTA_EXCEEDED") {
-        console.error(
-          import_chalk2.default.red("\n  \u2716  Free plan limit reached for this device.\n") + import_chalk2.default.yellow("     " + msg.message) + "\n"
-        );
+        if (!this.options.json) {
+          console.error(
+            import_chalk2.default.red("\n  \u2716  Free plan limit reached for this device.\n") + import_chalk2.default.yellow("     " + msg.message) + "\n"
+          );
+        }
         this.closing = true;
         process.exit(1);
       }
-      console.error(import_chalk2.default.red(`
+      if (!this.options.json) {
+        console.error(import_chalk2.default.red(`
   Relay error [${msg.code}]: ${msg.message}`));
+      }
+      return;
     }
   }
   _forwardRequest(msg) {
@@ -73540,6 +73549,11 @@ var Agent = class extends EventEmitter4 {
     });
   }
   // ── Screenshot capture ────────────────────────────────────────────────────
+  /** Write a human-readable status line, unless we're in machine (--json) mode. */
+  _statusLog(line) {
+    if (!this.options.json)
+      console.log(line);
+  }
   /** Convert the relay WebSocket URL to its HTTP equivalent. */
   _relayHttp() {
     return this.options.relay.replace(/^wss:\/\//, "https://").replace(/^ws:\/\//, "http://");
@@ -73584,7 +73598,7 @@ var Agent = class extends EventEmitter4 {
       return;
     const executablePath2 = process.env["PUPPETEER_EXECUTABLE_PATH"] ?? this._findChrome() ?? void 0;
     if (!executablePath2) {
-      console.log(
+      this._statusLog(
         import_chalk2.default.dim(
           "  Screenshot skipped \u2014 no Chrome found. Set PUPPETEER_EXECUTABLE_PATH to enable."
         )
@@ -73595,7 +73609,7 @@ var Agent = class extends EventEmitter4 {
     try {
       puppeteer2 = await Promise.resolve().then(() => (init_puppeteer_core(), puppeteer_core_exports));
     } catch {
-      console.log(import_chalk2.default.dim("  Screenshot skipped \u2014 puppeteer-core not available."));
+      this._statusLog(import_chalk2.default.dim("  Screenshot skipped \u2014 puppeteer-core not available."));
       return;
     }
     let browser = null;
@@ -73626,12 +73640,12 @@ var Agent = class extends EventEmitter4 {
         }
       );
       if (res.ok) {
-        console.log(import_chalk2.default.dim("  Screenshot captured."));
+        this._statusLog(import_chalk2.default.dim("  Screenshot captured."));
       } else {
-        console.log(import_chalk2.default.dim(`  Screenshot upload failed (HTTP ${res.status}).`));
+        this._statusLog(import_chalk2.default.dim(`  Screenshot upload failed (HTTP ${res.status}).`));
       }
     } catch (err) {
-      console.log(
+      this._statusLog(
         import_chalk2.default.yellow(
           `  Screenshot warning: ${err instanceof Error ? err.message : String(err)}`
         )
@@ -73799,6 +73813,11 @@ function updateBox(opts) {
 }
 
 // src/index.ts
+function emitJson(event, data = {}) {
+  process.stdout.write(
+    JSON.stringify({ ts: (/* @__PURE__ */ new Date()).toISOString(), event, ...data }) + "\n"
+  );
+}
 var CONFIG_DIR3 = join4(homedir2(), ".portlens");
 var CONSENT_FILE = join4(CONFIG_DIR3, "consent.json");
 var POLICY_VERSION = "1.0";
@@ -73824,10 +73843,17 @@ function saveConsent() {
   } catch {
   }
 }
-async function ensurePrivacyConsent() {
+async function ensurePrivacyConsent(nonInteractive = false) {
   const existing = readConsent();
   if (existing?.accepted && existing.version === POLICY_VERSION)
     return;
+  if (nonInteractive) {
+    emitJson("error", {
+      code: "PRIVACY_POLICY_NOT_ACCEPTED",
+      message: `You must accept the Privacy Policy (${POLICY_URL}) before tunnelling. Run \`portlens <port>\` once interactively to accept, then retry.`
+    });
+    process.exit(1);
+  }
   const isUpdate = existing?.accepted && existing.version !== POLICY_VERSION;
   console.log();
   if (isUpdate) {
@@ -74067,15 +74093,16 @@ program.argument("<port>", "Local port to tunnel", (v2) => {
     process.exit(1);
   }
   return n;
-}).option("--name <string>", "App name shown in the viewer").option("--desc <string>", "One-line description").option("--password <string>", "Protect the share link with a password").option("--relay <url>", "Override relay WebSocket URL").option("--no-open", "Don't auto-open the viewer URL in the browser").option("--no-screenshot", "Skip automatic screenshot capture").option("--qr", "Print the share URL as a QR code").action(async (port, opts) => {
-  await ensurePrivacyConsent();
+}).option("--name <string>", "App name shown in the viewer").option("--desc <string>", "One-line description").option("--password <string>", "Protect the share link with a password").option("--relay <url>", "Override relay WebSocket URL").option("--no-open", "Don't auto-open the viewer URL in the browser").option("--no-screenshot", "Skip automatic screenshot capture").option("--qr", "Print the share URL as a QR code").option("--json", "Emit machine-readable NDJSON events instead of the formatted box").action(async (port, opts) => {
+  const json = Boolean(opts.json);
+  await ensurePrivacyConsent(json);
   const cfg = readConfig();
   const auth = readAuth();
   const relay = normaliseRelay(opts.relay ?? cfg.relay);
   const name = opts.name ?? cfg.defaultName;
   const desc = opts.desc ?? cfg.defaultDesc;
   const jwtToken = auth?.token;
-  if (auth) {
+  if (auth && !json) {
     console.log(import_chalk4.default.dim(`  Tunneling as ${auth.user.email} (${auth.user.plan} plan)`));
   }
   const agent = new Agent(port, {
@@ -74085,16 +74112,20 @@ program.argument("<port>", "Local port to tunnel", (v2) => {
     relay,
     noOpen: opts.open === false,
     jwtToken,
-    noScreenshot: opts.screenshot === false
+    noScreenshot: opts.screenshot === false,
+    json
   });
-  const spinner = ora(`Connecting to relay (port ${port})\u2026`).start();
+  const shareUrl = `${VIEWER_BASE}/v/${agent.token}`;
+  if (json) {
+    emitJson("connecting", { token: agent.token, localPort: port, relay, shareUrl });
+  }
+  const spinner = json ? null : ora(`Connecting to relay (port ${port})\u2026`).start();
   let currentStatus = "connecting";
   let expiresAt = null;
   let currentRtt;
   let reconnectInfo;
   let boxVisible = false;
   let refreshTimer = null;
-  let shareUrl = `${VIEWER_BASE}/v/${agent.token}`;
   function boxOpts() {
     return { shareUrl, localPort: port, expiresAt, status: currentStatus, rtt: currentRtt, reconnectInfo };
   }
@@ -74107,9 +74138,13 @@ program.argument("<port>", "Local port to tunnel", (v2) => {
     }, 6e4);
   }
   agent.once("connected", () => {
-    spinner.stop();
     currentStatus = "connected";
     reconnectInfo = void 0;
+    if (json) {
+      emitJson("connected", { token: agent.token, localPort: port, shareUrl });
+      return;
+    }
+    spinner?.stop();
     boxVisible = true;
     printBox(boxOpts());
     startRefresh();
@@ -74122,30 +74157,70 @@ program.argument("<port>", "Local port to tunnel", (v2) => {
       });
     }
   });
+  agent.on("ready", (info2) => {
+    expiresAt = info2.expiresAt;
+    if (json) {
+      emitJson("ready", {
+        token: agent.token,
+        localPort: port,
+        shareUrl,
+        expiresAt: info2.expiresAt,
+        plan: info2.plan
+      });
+      return;
+    }
+    if (boxVisible)
+      updateBox(boxOpts());
+  });
   agent.on("reconnecting", (delayMs, attempt, maxAttempts) => {
     currentStatus = "reconnecting";
     currentRtt = void 0;
     reconnectInfo = { delayMs, attempt, maxAttempts };
+    if (json) {
+      emitJson("reconnecting", { delayMs, attempt, maxAttempts });
+      return;
+    }
     if (boxVisible)
       updateBox(boxOpts());
   });
+  let sawFirstConnected = false;
   agent.on("connected", () => {
+    if (!sawFirstConnected) {
+      sawFirstConnected = true;
+      return;
+    }
     currentStatus = "connected";
     reconnectInfo = void 0;
+    if (json) {
+      emitJson("reconnected", { token: agent.token, shareUrl });
+      return;
+    }
     if (boxVisible)
       updateBox(boxOpts());
   });
   agent.on("rtt", (ms) => {
     currentRtt = ms;
+    if (json) {
+      emitJson("rtt", { rttMs: ms });
+      return;
+    }
     if (boxVisible && currentStatus === "connected")
       updateBox(boxOpts());
   });
+  agent.on("relay-error", (err) => {
+    if (json)
+      emitJson("error", { code: err.code, message: err.message });
+  });
   process.on("SIGINT", () => {
-    spinner.stop();
+    spinner?.stop();
     if (refreshTimer)
       clearInterval(refreshTimer);
     agent.close();
-    console.log(import_chalk4.default.gray("\n  Tunnel closed."));
+    if (json) {
+      emitJson("closed", { token: agent.token });
+    } else {
+      console.log(import_chalk4.default.gray("\n  Tunnel closed."));
+    }
     process.exit(0);
   });
   agent.connect();
