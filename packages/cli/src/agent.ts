@@ -28,7 +28,10 @@ function hashPassword(password: string): string {
 // packages/shared/src/protocol.ts.
 type TunnelMessage =
   | { type: "register"; token: string; userId?: string; appName?: string; appDesc?: string; passwordHash?: string; jwtToken?: string; deviceFingerprint?: string }
+<<<<<<< HEAD
   | { type: "tunnel-ready"; token: string; expiresAt: string | null; plan: "free" | "pro" }
+=======
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
   | { type: "request"; requestId: string; method: string; path: string; headers: Record<string, string>; body?: string }
   | { type: "response"; requestId: string; statusCode: number; headers: Record<string, string>; body: string }
   | { type: "error"; code: string; message: string }
@@ -312,6 +315,7 @@ export class Agent extends EventEmitter {
     }
 
     if (msg.type === "error") {
+<<<<<<< HEAD
       // Surface as an event so `--json` callers can render it; humans get the
       // chalk-formatted version unless suppressed by json mode.
       this.emit("relay-error", { code: msg.code, message: msg.message });
@@ -332,6 +336,19 @@ export class Agent extends EventEmitter {
         console.error(chalk.red(`\n  Relay error [${msg.code}]: ${msg.message}`));
       }
       return;
+=======
+      if (msg.code === "DEVICE_QUOTA_EXCEEDED") {
+        // Print a prominent, actionable message then exit cleanly.
+        console.error(
+          chalk.red("\n  ✖  Free plan limit reached for this device.\n") +
+          chalk.yellow("     " + msg.message) +
+          "\n"
+        );
+        this.closing = true;
+        process.exit(1);
+      }
+      console.error(chalk.red(`\n  Relay error [${msg.code}]: ${msg.message}`));
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
     }
   }
 

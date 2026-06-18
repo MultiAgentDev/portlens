@@ -1,25 +1,26 @@
 #!/usr/bin/env node
+<<<<<<< HEAD
 import { createRequire as _createRequire } from 'module';
 import { fileURLToPath as _fileURLToPath } from 'url';
 const require = _createRequire(import.meta.url);
 const __filename = _fileURLToPath(import.meta.url);
 const __dirname = _fileURLToPath(new URL('.', import.meta.url));
+=======
+#!/usr/bin/env node
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __require = /* @__PURE__ */ ((x2) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x2, {
-  get: (a2, b2) => (typeof require !== "undefined" ? require : a2)[b2]
-}) : x2)(function(x2) {
+var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
+  get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
+}) : x)(function(x) {
   if (typeof require !== "undefined")
     return require.apply(this, arguments);
-  throw Error('Dynamic require of "' + x2 + '" is not supported');
+  throw Error('Dynamic require of "' + x + '" is not supported');
 });
-var __esm = (fn, res) => function __init() {
-  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
-};
 var __commonJS = (cb, mod) => function __require2() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
@@ -27,11 +28,11 @@ var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
-var __copyProps = (to, from2, except, desc) => {
-  if (from2 && typeof from2 === "object" || typeof from2 === "function") {
-    for (let key of __getOwnPropNames(from2))
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
       if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from2[key], enumerable: !(desc = __getOwnPropDesc(from2, key)) || desc.enumerable });
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
   }
   return to;
 };
@@ -229,8 +230,8 @@ var require_help = __commonJS({
           visibleCommands.push(helpCommand);
         }
         if (this.sortSubcommands) {
-          visibleCommands.sort((a2, b2) => {
-            return a2.name().localeCompare(b2.name());
+          visibleCommands.sort((a, b) => {
+            return a.name().localeCompare(b.name());
           });
         }
         return visibleCommands;
@@ -260,8 +261,8 @@ var require_help = __commonJS({
           const getSortKey = (option) => {
             return option.short ? option.short.replace(/^-/, "") : option.long.replace(/^--/, "");
           };
-          visibleOptions.sort((a2, b2) => {
-            return getSortKey(a2).localeCompare(getSortKey(b2));
+          visibleOptions.sort((a, b) => {
+            return getSortKey(a).localeCompare(getSortKey(b));
           });
         }
         return visibleOptions;
@@ -321,8 +322,8 @@ var require_help = __commonJS({
        * @returns {number}
        */
       longestSubcommandTermLength(cmd, helper) {
-        return helper.visibleCommands(cmd).reduce((max, command2) => {
-          return Math.max(max, helper.subcommandTerm(command2).length);
+        return helper.visibleCommands(cmd).reduce((max, command) => {
+          return Math.max(max, helper.subcommandTerm(command).length);
         }, 0);
       }
       /**
@@ -458,30 +459,30 @@ var require_help = __commonJS({
         function formatList(textArray) {
           return textArray.join("\n").replace(/^/gm, " ".repeat(itemIndentWidth));
         }
-        let output3 = [`Usage: ${helper.commandUsage(cmd)}`, ""];
+        let output2 = [`Usage: ${helper.commandUsage(cmd)}`, ""];
         const commandDescription = helper.commandDescription(cmd);
         if (commandDescription.length > 0) {
-          output3 = output3.concat([commandDescription, ""]);
+          output2 = output2.concat([commandDescription, ""]);
         }
         const argumentList = helper.visibleArguments(cmd).map((argument) => {
           return formatItem(helper.argumentTerm(argument), helper.argumentDescription(argument));
         });
         if (argumentList.length > 0) {
-          output3 = output3.concat(["Arguments:", formatList(argumentList), ""]);
+          output2 = output2.concat(["Arguments:", formatList(argumentList), ""]);
         }
         const optionList = helper.visibleOptions(cmd).map((option) => {
           return formatItem(helper.optionTerm(option), helper.optionDescription(option));
         });
         if (optionList.length > 0) {
-          output3 = output3.concat(["Options:", formatList(optionList), ""]);
+          output2 = output2.concat(["Options:", formatList(optionList), ""]);
         }
         const commandList = helper.visibleCommands(cmd).map((cmd2) => {
           return formatItem(helper.subcommandTerm(cmd2), helper.subcommandDescription(cmd2));
         });
         if (commandList.length > 0) {
-          output3 = output3.concat(["Commands:", formatList(commandList), ""]);
+          output2 = output2.concat(["Commands:", formatList(commandList), ""]);
         }
-        return output3.join("\n");
+        return output2.join("\n");
       }
       /**
        * Calculate the pad width from the maximum term length.
@@ -703,38 +704,38 @@ var require_option = __commonJS({
 var require_suggestSimilar = __commonJS({
   "../../node_modules/commander/lib/suggestSimilar.js"(exports) {
     var maxDistance = 3;
-    function editDistance(a2, b2) {
-      if (Math.abs(a2.length - b2.length) > maxDistance)
-        return Math.max(a2.length, b2.length);
+    function editDistance(a, b) {
+      if (Math.abs(a.length - b.length) > maxDistance)
+        return Math.max(a.length, b.length);
       const d = [];
-      for (let i = 0; i <= a2.length; i++) {
+      for (let i = 0; i <= a.length; i++) {
         d[i] = [i];
       }
-      for (let j2 = 0; j2 <= b2.length; j2++) {
-        d[0][j2] = j2;
+      for (let j = 0; j <= b.length; j++) {
+        d[0][j] = j;
       }
-      for (let j2 = 1; j2 <= b2.length; j2++) {
-        for (let i = 1; i <= a2.length; i++) {
+      for (let j = 1; j <= b.length; j++) {
+        for (let i = 1; i <= a.length; i++) {
           let cost = 1;
-          if (a2[i - 1] === b2[j2 - 1]) {
+          if (a[i - 1] === b[j - 1]) {
             cost = 0;
           } else {
             cost = 1;
           }
-          d[i][j2] = Math.min(
-            d[i - 1][j2] + 1,
+          d[i][j] = Math.min(
+            d[i - 1][j] + 1,
             // deletion
-            d[i][j2 - 1] + 1,
+            d[i][j - 1] + 1,
             // insertion
-            d[i - 1][j2 - 1] + cost
+            d[i - 1][j - 1] + cost
             // substitution
           );
-          if (i > 1 && j2 > 1 && a2[i - 1] === b2[j2 - 2] && a2[i - 2] === b2[j2 - 1]) {
-            d[i][j2] = Math.min(d[i][j2], d[i - 2][j2 - 2] + 1);
+          if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+            d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
           }
         }
       }
-      return d[a2.length][b2.length];
+      return d[a.length][b.length];
     }
     function suggestSimilar(word, candidates) {
       if (!candidates || candidates.length === 0)
@@ -763,7 +764,7 @@ var require_suggestSimilar = __commonJS({
           }
         }
       });
-      similar.sort((a2, b2) => a2.localeCompare(b2));
+      similar.sort((a, b) => a.localeCompare(b));
       if (searchingOptions) {
         similar = similar.map((candidate) => `--${candidate}`);
       }
@@ -784,16 +785,16 @@ var require_suggestSimilar = __commonJS({
 // ../../node_modules/commander/lib/command.js
 var require_command = __commonJS({
   "../../node_modules/commander/lib/command.js"(exports) {
-    var EventEmitter5 = __require("events").EventEmitter;
-    var childProcess2 = __require("child_process");
-    var path15 = __require("path");
-    var fs11 = __require("fs");
+    var EventEmitter2 = __require("events").EventEmitter;
+    var childProcess = __require("child_process");
+    var path3 = __require("path");
+    var fs4 = __require("fs");
     var { Argument, humanReadableArgName } = require_argument();
     var { CommanderError } = require_error();
     var { Help } = require_help();
     var { Option, splitOptionFlags } = require_option();
     var { suggestSimilar } = require_suggestSimilar();
-    var Command2 = class _Command extends EventEmitter5 {
+    var Command2 = class _Command extends EventEmitter2 {
       /**
        * Initialize a new `Command`.
        *
@@ -1300,9 +1301,9 @@ Expecting one of '${allowedValues.join("', '")}'`);
        *
        * @api private
        */
-      _optionEx(config2, flags, description, fn, defaultValue) {
+      _optionEx(config, flags, description, fn, defaultValue) {
         const option = this.createOption(flags, description);
-        option.makeOptionMandatory(!!config2.mandatory);
+        option.makeOptionMandatory(!!config.mandatory);
         if (typeof fn === "function") {
           option.default(defaultValue).argParser(fn);
         } else if (fn instanceof RegExp) {
@@ -1494,9 +1495,9 @@ Expecting one of '${allowedValues.join("', '")}'`);
         * @param {string} source - expected values are default/config/env/cli
         * @return {Command} `this` command for chaining
         */
-      setOptionValueWithSource(key, value, source2) {
+      setOptionValueWithSource(key, value, source) {
         this.setOptionValue(key, value);
-        this._optionValueSources[key] = source2;
+        this._optionValueSources[key] = source;
         return this;
       }
       /**
@@ -1551,7 +1552,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
         if (!this._scriptPath && __require.main) {
           this._scriptPath = __require.main.filename;
         }
-        this._name = this._name || this._scriptPath && path15.basename(this._scriptPath, path15.extname(this._scriptPath));
+        this._name = this._name || this._scriptPath && path3.basename(this._scriptPath, path3.extname(this._scriptPath));
         return userArgs;
       }
       /**
@@ -1614,39 +1615,39 @@ Expecting one of '${allowedValues.join("', '")}'`);
         }
         let baseDir;
         try {
-          const resolvedLink = fs11.realpathSync(scriptPath);
-          baseDir = path15.dirname(resolvedLink);
+          const resolvedLink = fs4.realpathSync(scriptPath);
+          baseDir = path3.dirname(resolvedLink);
         } catch (e) {
           baseDir = ".";
         }
-        let bin = path15.basename(scriptPath, path15.extname(scriptPath)) + "-" + subcommand._name;
+        let bin = path3.basename(scriptPath, path3.extname(scriptPath)) + "-" + subcommand._name;
         if (subcommand._executableFile) {
           bin = subcommand._executableFile;
         }
-        const localBin = path15.join(baseDir, bin);
-        if (fs11.existsSync(localBin)) {
+        const localBin = path3.join(baseDir, bin);
+        if (fs4.existsSync(localBin)) {
           bin = localBin;
         } else {
           sourceExt.forEach((ext) => {
-            if (fs11.existsSync(`${localBin}${ext}`)) {
+            if (fs4.existsSync(`${localBin}${ext}`)) {
               bin = `${localBin}${ext}`;
             }
           });
         }
-        launchWithNode = sourceExt.includes(path15.extname(bin));
+        launchWithNode = sourceExt.includes(path3.extname(bin));
         let proc;
         if (process.platform !== "win32") {
           if (launchWithNode) {
             args.unshift(bin);
             args = incrementNodeInspectorPort(process.execArgv).concat(args);
-            proc = childProcess2.spawn(process.argv[0], args, { stdio: "inherit" });
+            proc = childProcess.spawn(process.argv[0], args, { stdio: "inherit" });
           } else {
-            proc = childProcess2.spawn(bin, args, { stdio: "inherit" });
+            proc = childProcess.spawn(bin, args, { stdio: "inherit" });
           }
         } else {
           args.unshift(bin);
           args = incrementNodeInspectorPort(process.execArgv).concat(args);
-          proc = childProcess2.spawn(process.execPath, args, { stdio: "inherit" });
+          proc = childProcess.spawn(process.execPath, args, { stdio: "inherit" });
         }
         const signals2 = ["SIGUSR1", "SIGUSR2", "SIGTERM", "SIGINT", "SIGHUP"];
         signals2.forEach((signal) => {
@@ -1743,8 +1744,8 @@ Expecting one of '${allowedValues.join("', '")}'`);
             if (index < this.args.length) {
               value = this.args.slice(index);
               if (declaredArg.parseArg) {
-                value = value.reduce((processed, v2) => {
-                  return myParseArg(declaredArg, v2, processed);
+                value = value.reduce((processed, v) => {
+                  return myParseArg(declaredArg, v, processed);
                 }, declaredArg.defaultValue);
               }
             } else if (value === void 0) {
@@ -2110,12 +2111,12 @@ Expecting one of '${allowedValues.join("', '")}'`);
         let suggestion = "";
         if (flag.startsWith("--") && this._showSuggestionAfterError) {
           let candidateFlags = [];
-          let command2 = this;
+          let command = this;
           do {
-            const moreFlags = command2.createHelp().visibleOptions(command2).filter((option) => option.long).map((option) => option.long);
+            const moreFlags = command.createHelp().visibleOptions(command).filter((option) => option.long).map((option) => option.long);
             candidateFlags = candidateFlags.concat(moreFlags);
-            command2 = command2.parent;
-          } while (command2 && !command2._enablePositionalOptions);
+            command = command.parent;
+          } while (command && !command._enablePositionalOptions);
           suggestion = suggestSimilar(flag, candidateFlags);
         }
         const message = `error: unknown option '${flag}'${suggestion}`;
@@ -2146,10 +2147,10 @@ Expecting one of '${allowedValues.join("', '")}'`);
         let suggestion = "";
         if (this._showSuggestionAfterError) {
           const candidateNames = [];
-          this.createHelp().visibleCommands(this).forEach((command2) => {
-            candidateNames.push(command2.name());
-            if (command2.alias())
-              candidateNames.push(command2.alias());
+          this.createHelp().visibleCommands(this).forEach((command) => {
+            candidateNames.push(command.name());
+            if (command.alias())
+              candidateNames.push(command.alias());
           });
           suggestion = suggestSimilar(unknownName, candidateNames);
         }
@@ -2212,13 +2213,13 @@ Expecting one of '${allowedValues.join("', '")}'`);
       alias(alias) {
         if (alias === void 0)
           return this._aliases[0];
-        let command2 = this;
+        let command = this;
         if (this.commands.length !== 0 && this.commands[this.commands.length - 1]._executableHandler) {
-          command2 = this.commands[this.commands.length - 1];
+          command = this.commands[this.commands.length - 1];
         }
-        if (alias === command2._name)
+        if (alias === command._name)
           throw new Error("Command alias can't be the same as its name");
-        command2._aliases.push(alias);
+        command._aliases.push(alias);
         return this;
       }
       /**
@@ -2287,16 +2288,16 @@ Expecting one of '${allowedValues.join("', '")}'`);
        */
       _getHelpContext(contextOptions) {
         contextOptions = contextOptions || {};
-        const context2 = { error: !!contextOptions.error };
+        const context = { error: !!contextOptions.error };
         let write;
-        if (context2.error) {
+        if (context.error) {
           write = (arg) => this._outputConfiguration.writeErr(arg);
         } else {
           write = (arg) => this._outputConfiguration.writeOut(arg);
         }
-        context2.write = contextOptions.write || write;
-        context2.command = this;
-        return context2;
+        context.write = contextOptions.write || write;
+        context.command = this;
+        return context;
       }
       /**
        * Output help information for this command.
@@ -2311,20 +2312,20 @@ Expecting one of '${allowedValues.join("', '")}'`);
           deprecatedCallback = contextOptions;
           contextOptions = void 0;
         }
-        const context2 = this._getHelpContext(contextOptions);
-        getCommandAndParents(this).reverse().forEach((command2) => command2.emit("beforeAllHelp", context2));
-        this.emit("beforeHelp", context2);
-        let helpInformation = this.helpInformation(context2);
+        const context = this._getHelpContext(contextOptions);
+        getCommandAndParents(this).reverse().forEach((command) => command.emit("beforeAllHelp", context));
+        this.emit("beforeHelp", context);
+        let helpInformation = this.helpInformation(context);
         if (deprecatedCallback) {
           helpInformation = deprecatedCallback(helpInformation);
           if (typeof helpInformation !== "string" && !Buffer.isBuffer(helpInformation)) {
             throw new Error("outputHelp callback must return a string or a Buffer");
           }
         }
-        context2.write(helpInformation);
+        context.write(helpInformation);
         this.emit(this._helpLongFlag);
-        this.emit("afterHelp", context2);
-        getCommandAndParents(this).forEach((command2) => command2.emit("afterAllHelp", context2));
+        this.emit("afterHelp", context);
+        getCommandAndParents(this).forEach((command) => command.emit("afterAllHelp", context));
       }
       /**
        * You can pass in flags and a description to override the help
@@ -2379,15 +2380,15 @@ Expecting one of '${allowedValues.join("', '")}'`);
 Expecting one of '${allowedValues.join("', '")}'`);
         }
         const helpEvent = `${position}Help`;
-        this.on(helpEvent, (context2) => {
+        this.on(helpEvent, (context) => {
           let helpStr;
           if (typeof text === "function") {
-            helpStr = text({ error: context2.error, command: context2.command });
+            helpStr = text({ error: context.error, command: context.command });
           } else {
             helpStr = text;
           }
           if (helpStr) {
-            context2.write(`${helpStr}
+            context.write(`${helpStr}
 `);
           }
         });
@@ -2432,8 +2433,8 @@ Expecting one of '${allowedValues.join("', '")}'`);
     }
     function getCommandAndParents(startCommand) {
       const result = [];
-      for (let command2 = startCommand; command2; command2 = command2.parent) {
-        result.push(command2);
+      for (let command = startCommand; command; command = command.parent) {
+        result.push(command);
       }
       return result;
     }
@@ -2663,19 +2664,19 @@ var require_conversions = __commonJS({
     convert.rgb.hsl = function(rgb) {
       const r = rgb[0] / 255;
       const g = rgb[1] / 255;
-      const b2 = rgb[2] / 255;
-      const min = Math.min(r, g, b2);
-      const max = Math.max(r, g, b2);
+      const b = rgb[2] / 255;
+      const min = Math.min(r, g, b);
+      const max = Math.max(r, g, b);
       const delta = max - min;
       let h;
       let s;
       if (max === min) {
         h = 0;
       } else if (r === max) {
-        h = (g - b2) / delta;
+        h = (g - b) / delta;
       } else if (g === max) {
-        h = 2 + (b2 - r) / delta;
-      } else if (b2 === max) {
+        h = 2 + (b - r) / delta;
+      } else if (b === max) {
         h = 4 + (r - g) / delta;
       }
       h = Math.min(h * 60, 360);
@@ -2700,25 +2701,25 @@ var require_conversions = __commonJS({
       let s;
       const r = rgb[0] / 255;
       const g = rgb[1] / 255;
-      const b2 = rgb[2] / 255;
-      const v2 = Math.max(r, g, b2);
-      const diff = v2 - Math.min(r, g, b2);
+      const b = rgb[2] / 255;
+      const v = Math.max(r, g, b);
+      const diff = v - Math.min(r, g, b);
       const diffc = function(c) {
-        return (v2 - c) / 6 / diff + 1 / 2;
+        return (v - c) / 6 / diff + 1 / 2;
       };
       if (diff === 0) {
         h = 0;
         s = 0;
       } else {
-        s = diff / v2;
+        s = diff / v;
         rdif = diffc(r);
         gdif = diffc(g);
-        bdif = diffc(b2);
-        if (r === v2) {
+        bdif = diffc(b);
+        if (r === v) {
           h = bdif - gdif;
-        } else if (g === v2) {
+        } else if (g === v) {
           h = 1 / 3 + rdif - bdif;
-        } else if (b2 === v2) {
+        } else if (b === v) {
           h = 2 / 3 + gdif - rdif;
         }
         if (h < 0) {
@@ -2730,30 +2731,30 @@ var require_conversions = __commonJS({
       return [
         h * 360,
         s * 100,
-        v2 * 100
+        v * 100
       ];
     };
     convert.rgb.hwb = function(rgb) {
       const r = rgb[0];
       const g = rgb[1];
-      let b2 = rgb[2];
+      let b = rgb[2];
       const h = convert.rgb.hsl(rgb)[0];
-      const w2 = 1 / 255 * Math.min(r, Math.min(g, b2));
-      b2 = 1 - 1 / 255 * Math.max(r, Math.max(g, b2));
-      return [h, w2 * 100, b2 * 100];
+      const w = 1 / 255 * Math.min(r, Math.min(g, b));
+      b = 1 - 1 / 255 * Math.max(r, Math.max(g, b));
+      return [h, w * 100, b * 100];
     };
     convert.rgb.cmyk = function(rgb) {
       const r = rgb[0] / 255;
       const g = rgb[1] / 255;
-      const b2 = rgb[2] / 255;
-      const k = Math.min(1 - r, 1 - g, 1 - b2);
+      const b = rgb[2] / 255;
+      const k = Math.min(1 - r, 1 - g, 1 - b);
       const c = (1 - r - k) / (1 - k) || 0;
       const m = (1 - g - k) / (1 - k) || 0;
-      const y = (1 - b2 - k) / (1 - k) || 0;
+      const y = (1 - b - k) / (1 - k) || 0;
       return [c * 100, m * 100, y * 100, k * 100];
     };
-    function comparativeDistance(x2, y) {
-      return (x2[0] - y[0]) ** 2 + (x2[1] - y[1]) ** 2 + (x2[2] - y[2]) ** 2;
+    function comparativeDistance(x, y) {
+      return (x[0] - y[0]) ** 2 + (x[1] - y[1]) ** 2 + (x[2] - y[2]) ** 2;
     }
     convert.rgb.keyword = function(rgb) {
       const reversed = reverseKeywords[rgb];
@@ -2778,30 +2779,30 @@ var require_conversions = __commonJS({
     convert.rgb.xyz = function(rgb) {
       let r = rgb[0] / 255;
       let g = rgb[1] / 255;
-      let b2 = rgb[2] / 255;
+      let b = rgb[2] / 255;
       r = r > 0.04045 ? ((r + 0.055) / 1.055) ** 2.4 : r / 12.92;
       g = g > 0.04045 ? ((g + 0.055) / 1.055) ** 2.4 : g / 12.92;
-      b2 = b2 > 0.04045 ? ((b2 + 0.055) / 1.055) ** 2.4 : b2 / 12.92;
-      const x2 = r * 0.4124 + g * 0.3576 + b2 * 0.1805;
-      const y = r * 0.2126 + g * 0.7152 + b2 * 0.0722;
-      const z2 = r * 0.0193 + g * 0.1192 + b2 * 0.9505;
-      return [x2 * 100, y * 100, z2 * 100];
+      b = b > 0.04045 ? ((b + 0.055) / 1.055) ** 2.4 : b / 12.92;
+      const x = r * 0.4124 + g * 0.3576 + b * 0.1805;
+      const y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+      const z = r * 0.0193 + g * 0.1192 + b * 0.9505;
+      return [x * 100, y * 100, z * 100];
     };
     convert.rgb.lab = function(rgb) {
       const xyz = convert.rgb.xyz(rgb);
-      let x2 = xyz[0];
+      let x = xyz[0];
       let y = xyz[1];
-      let z2 = xyz[2];
-      x2 /= 95.047;
+      let z = xyz[2];
+      x /= 95.047;
       y /= 100;
-      z2 /= 108.883;
-      x2 = x2 > 8856e-6 ? x2 ** (1 / 3) : 7.787 * x2 + 16 / 116;
+      z /= 108.883;
+      x = x > 8856e-6 ? x ** (1 / 3) : 7.787 * x + 16 / 116;
       y = y > 8856e-6 ? y ** (1 / 3) : 7.787 * y + 16 / 116;
-      z2 = z2 > 8856e-6 ? z2 ** (1 / 3) : 7.787 * z2 + 16 / 116;
+      z = z > 8856e-6 ? z ** (1 / 3) : 7.787 * z + 16 / 116;
       const l = 116 * y - 16;
-      const a2 = 500 * (x2 - y);
-      const b2 = 200 * (y - z2);
-      return [l, a2, b2];
+      const a = 500 * (x - y);
+      const b = 200 * (y - z);
+      return [l, a, b];
     };
     convert.hsl.rgb = function(hsl) {
       const h = hsl[0] / 360;
@@ -2851,43 +2852,43 @@ var require_conversions = __commonJS({
       l *= 2;
       s *= l <= 1 ? l : 2 - l;
       smin *= lmin <= 1 ? lmin : 2 - lmin;
-      const v2 = (l + s) / 2;
+      const v = (l + s) / 2;
       const sv = l === 0 ? 2 * smin / (lmin + smin) : 2 * s / (l + s);
-      return [h, sv * 100, v2 * 100];
+      return [h, sv * 100, v * 100];
     };
     convert.hsv.rgb = function(hsv) {
       const h = hsv[0] / 60;
       const s = hsv[1] / 100;
-      let v2 = hsv[2] / 100;
+      let v = hsv[2] / 100;
       const hi = Math.floor(h) % 6;
       const f = h - Math.floor(h);
-      const p = 255 * v2 * (1 - s);
-      const q2 = 255 * v2 * (1 - s * f);
-      const t = 255 * v2 * (1 - s * (1 - f));
-      v2 *= 255;
+      const p = 255 * v * (1 - s);
+      const q = 255 * v * (1 - s * f);
+      const t = 255 * v * (1 - s * (1 - f));
+      v *= 255;
       switch (hi) {
         case 0:
-          return [v2, t, p];
+          return [v, t, p];
         case 1:
-          return [q2, v2, p];
+          return [q, v, p];
         case 2:
-          return [p, v2, t];
+          return [p, v, t];
         case 3:
-          return [p, q2, v2];
+          return [p, q, v];
         case 4:
-          return [t, p, v2];
+          return [t, p, v];
         case 5:
-          return [v2, p, q2];
+          return [v, p, q];
       }
     };
     convert.hsv.hsl = function(hsv) {
       const h = hsv[0];
       const s = hsv[1] / 100;
-      const v2 = hsv[2] / 100;
-      const vmin = Math.max(v2, 0.01);
+      const v = hsv[2] / 100;
+      const vmin = Math.max(v, 0.01);
       let sl;
       let l;
-      l = (2 - s) * v2;
+      l = (2 - s) * v;
       const lmin = (2 - s) * vmin;
       sl = s * vmin;
       sl /= lmin <= 1 ? lmin : 2 - lmin;
@@ -2906,50 +2907,50 @@ var require_conversions = __commonJS({
         bl /= ratio;
       }
       const i = Math.floor(6 * h);
-      const v2 = 1 - bl;
+      const v = 1 - bl;
       f = 6 * h - i;
       if ((i & 1) !== 0) {
         f = 1 - f;
       }
-      const n = wh + f * (v2 - wh);
+      const n = wh + f * (v - wh);
       let r;
       let g;
-      let b2;
+      let b;
       switch (i) {
         default:
         case 6:
         case 0:
-          r = v2;
+          r = v;
           g = n;
-          b2 = wh;
+          b = wh;
           break;
         case 1:
           r = n;
-          g = v2;
-          b2 = wh;
+          g = v;
+          b = wh;
           break;
         case 2:
           r = wh;
-          g = v2;
-          b2 = n;
+          g = v;
+          b = n;
           break;
         case 3:
           r = wh;
           g = n;
-          b2 = v2;
+          b = v;
           break;
         case 4:
           r = n;
           g = wh;
-          b2 = v2;
+          b = v;
           break;
         case 5:
-          r = v2;
+          r = v;
           g = wh;
-          b2 = n;
+          b = n;
           break;
       }
-      return [r * 255, g * 255, b2 * 255];
+      return [r * 255, g * 255, b * 255];
     };
     convert.cmyk.rgb = function(cmyk) {
       const c = cmyk[0] / 100;
@@ -2958,74 +2959,74 @@ var require_conversions = __commonJS({
       const k = cmyk[3] / 100;
       const r = 1 - Math.min(1, c * (1 - k) + k);
       const g = 1 - Math.min(1, m * (1 - k) + k);
-      const b2 = 1 - Math.min(1, y * (1 - k) + k);
-      return [r * 255, g * 255, b2 * 255];
+      const b = 1 - Math.min(1, y * (1 - k) + k);
+      return [r * 255, g * 255, b * 255];
     };
     convert.xyz.rgb = function(xyz) {
-      const x2 = xyz[0] / 100;
+      const x = xyz[0] / 100;
       const y = xyz[1] / 100;
-      const z2 = xyz[2] / 100;
+      const z = xyz[2] / 100;
       let r;
       let g;
-      let b2;
-      r = x2 * 3.2406 + y * -1.5372 + z2 * -0.4986;
-      g = x2 * -0.9689 + y * 1.8758 + z2 * 0.0415;
-      b2 = x2 * 0.0557 + y * -0.204 + z2 * 1.057;
+      let b;
+      r = x * 3.2406 + y * -1.5372 + z * -0.4986;
+      g = x * -0.9689 + y * 1.8758 + z * 0.0415;
+      b = x * 0.0557 + y * -0.204 + z * 1.057;
       r = r > 31308e-7 ? 1.055 * r ** (1 / 2.4) - 0.055 : r * 12.92;
       g = g > 31308e-7 ? 1.055 * g ** (1 / 2.4) - 0.055 : g * 12.92;
-      b2 = b2 > 31308e-7 ? 1.055 * b2 ** (1 / 2.4) - 0.055 : b2 * 12.92;
+      b = b > 31308e-7 ? 1.055 * b ** (1 / 2.4) - 0.055 : b * 12.92;
       r = Math.min(Math.max(0, r), 1);
       g = Math.min(Math.max(0, g), 1);
-      b2 = Math.min(Math.max(0, b2), 1);
-      return [r * 255, g * 255, b2 * 255];
+      b = Math.min(Math.max(0, b), 1);
+      return [r * 255, g * 255, b * 255];
     };
     convert.xyz.lab = function(xyz) {
-      let x2 = xyz[0];
+      let x = xyz[0];
       let y = xyz[1];
-      let z2 = xyz[2];
-      x2 /= 95.047;
+      let z = xyz[2];
+      x /= 95.047;
       y /= 100;
-      z2 /= 108.883;
-      x2 = x2 > 8856e-6 ? x2 ** (1 / 3) : 7.787 * x2 + 16 / 116;
+      z /= 108.883;
+      x = x > 8856e-6 ? x ** (1 / 3) : 7.787 * x + 16 / 116;
       y = y > 8856e-6 ? y ** (1 / 3) : 7.787 * y + 16 / 116;
-      z2 = z2 > 8856e-6 ? z2 ** (1 / 3) : 7.787 * z2 + 16 / 116;
+      z = z > 8856e-6 ? z ** (1 / 3) : 7.787 * z + 16 / 116;
       const l = 116 * y - 16;
-      const a2 = 500 * (x2 - y);
-      const b2 = 200 * (y - z2);
-      return [l, a2, b2];
+      const a = 500 * (x - y);
+      const b = 200 * (y - z);
+      return [l, a, b];
     };
     convert.lab.xyz = function(lab) {
       const l = lab[0];
-      const a2 = lab[1];
-      const b2 = lab[2];
-      let x2;
+      const a = lab[1];
+      const b = lab[2];
+      let x;
       let y;
-      let z2;
+      let z;
       y = (l + 16) / 116;
-      x2 = a2 / 500 + y;
-      z2 = y - b2 / 200;
+      x = a / 500 + y;
+      z = y - b / 200;
       const y2 = y ** 3;
-      const x22 = x2 ** 3;
-      const z22 = z2 ** 3;
+      const x2 = x ** 3;
+      const z2 = z ** 3;
       y = y2 > 8856e-6 ? y2 : (y - 16 / 116) / 7.787;
-      x2 = x22 > 8856e-6 ? x22 : (x2 - 16 / 116) / 7.787;
-      z2 = z22 > 8856e-6 ? z22 : (z2 - 16 / 116) / 7.787;
-      x2 *= 95.047;
+      x = x2 > 8856e-6 ? x2 : (x - 16 / 116) / 7.787;
+      z = z2 > 8856e-6 ? z2 : (z - 16 / 116) / 7.787;
+      x *= 95.047;
       y *= 100;
-      z2 *= 108.883;
-      return [x2, y, z2];
+      z *= 108.883;
+      return [x, y, z];
     };
     convert.lab.lch = function(lab) {
       const l = lab[0];
-      const a2 = lab[1];
-      const b2 = lab[2];
+      const a = lab[1];
+      const b = lab[2];
       let h;
-      const hr = Math.atan2(b2, a2);
+      const hr = Math.atan2(b, a);
       h = hr * 360 / 2 / Math.PI;
       if (h < 0) {
         h += 360;
       }
-      const c = Math.sqrt(a2 * a2 + b2 * b2);
+      const c = Math.sqrt(a * a + b * b);
       return [l, c, h];
     };
     convert.lch.lab = function(lch) {
@@ -3033,22 +3034,22 @@ var require_conversions = __commonJS({
       const c = lch[1];
       const h = lch[2];
       const hr = h / 360 * 2 * Math.PI;
-      const a2 = c * Math.cos(hr);
-      const b2 = c * Math.sin(hr);
-      return [l, a2, b2];
+      const a = c * Math.cos(hr);
+      const b = c * Math.sin(hr);
+      return [l, a, b];
     };
     convert.rgb.ansi16 = function(args, saturation = null) {
-      const [r, g, b2] = args;
+      const [r, g, b] = args;
       let value = saturation === null ? convert.rgb.hsv(args)[2] : saturation;
       value = Math.round(value / 50);
       if (value === 0) {
         return 30;
       }
-      let ansi2 = 30 + (Math.round(b2 / 255) << 2 | Math.round(g / 255) << 1 | Math.round(r / 255));
+      let ansi = 30 + (Math.round(b / 255) << 2 | Math.round(g / 255) << 1 | Math.round(r / 255));
       if (value === 2) {
-        ansi2 += 60;
+        ansi += 60;
       }
-      return ansi2;
+      return ansi;
     };
     convert.hsv.ansi16 = function(args) {
       return convert.rgb.ansi16(convert.hsv.rgb(args), args[2]);
@@ -3056,8 +3057,8 @@ var require_conversions = __commonJS({
     convert.rgb.ansi256 = function(args) {
       const r = args[0];
       const g = args[1];
-      const b2 = args[2];
-      if (r === g && g === b2) {
+      const b = args[2];
+      if (r === g && g === b) {
         if (r < 8) {
           return 16;
         }
@@ -3066,8 +3067,8 @@ var require_conversions = __commonJS({
         }
         return Math.round((r - 8) / 247 * 24) + 232;
       }
-      const ansi2 = 16 + 36 * Math.round(r / 255 * 5) + 6 * Math.round(g / 255 * 5) + Math.round(b2 / 255 * 5);
-      return ansi2;
+      const ansi = 16 + 36 * Math.round(r / 255 * 5) + 6 * Math.round(g / 255 * 5) + Math.round(b / 255 * 5);
+      return ansi;
     };
     convert.ansi16.rgb = function(args) {
       let color = args % 10;
@@ -3081,8 +3082,8 @@ var require_conversions = __commonJS({
       const mult = (~~(args > 50) + 1) * 0.5;
       const r = (color & 1) * mult * 255;
       const g = (color >> 1 & 1) * mult * 255;
-      const b2 = (color >> 2 & 1) * mult * 255;
-      return [r, g, b2];
+      const b = (color >> 2 & 1) * mult * 255;
+      return [r, g, b];
     };
     convert.ansi256.rgb = function(args) {
       if (args >= 232) {
@@ -3093,8 +3094,8 @@ var require_conversions = __commonJS({
       let rem;
       const r = Math.floor(args / 36) / 5 * 255;
       const g = Math.floor((rem = args % 36) / 6) / 5 * 255;
-      const b2 = rem % 6 / 5 * 255;
-      return [r, g, b2];
+      const b = rem % 6 / 5 * 255;
+      return [r, g, b];
     };
     convert.rgb.hex = function(args) {
       const integer = ((Math.round(args[0]) & 255) << 16) + ((Math.round(args[1]) & 255) << 8) + (Math.round(args[2]) & 255);
@@ -3115,15 +3116,15 @@ var require_conversions = __commonJS({
       const integer = parseInt(colorString, 16);
       const r = integer >> 16 & 255;
       const g = integer >> 8 & 255;
-      const b2 = integer & 255;
-      return [r, g, b2];
+      const b = integer & 255;
+      return [r, g, b];
     };
     convert.rgb.hcg = function(rgb) {
       const r = rgb[0] / 255;
       const g = rgb[1] / 255;
-      const b2 = rgb[2] / 255;
-      const max = Math.max(Math.max(r, g), b2);
-      const min = Math.min(Math.min(r, g), b2);
+      const b = rgb[2] / 255;
+      const max = Math.max(Math.max(r, g), b);
+      const min = Math.min(Math.min(r, g), b);
       const chroma = max - min;
       let grayscale;
       let hue;
@@ -3135,9 +3136,9 @@ var require_conversions = __commonJS({
       if (chroma <= 0) {
         hue = 0;
       } else if (max === r) {
-        hue = (g - b2) / chroma % 6;
+        hue = (g - b) / chroma % 6;
       } else if (max === g) {
-        hue = 2 + (b2 - r) / chroma;
+        hue = 2 + (b - r) / chroma;
       } else {
         hue = 4 + (r - g) / chroma;
       }
@@ -3157,11 +3158,11 @@ var require_conversions = __commonJS({
     };
     convert.hsv.hcg = function(hsv) {
       const s = hsv[1] / 100;
-      const v2 = hsv[2] / 100;
-      const c = s * v2;
+      const v = hsv[2] / 100;
+      const c = s * v;
       let f = 0;
       if (c < 1) {
-        f = (v2 - c) / (1 - c);
+        f = (v - c) / (1 - c);
       }
       return [hsv[0], c * 100, f * 100];
     };
@@ -3174,39 +3175,39 @@ var require_conversions = __commonJS({
       }
       const pure = [0, 0, 0];
       const hi = h % 1 * 6;
-      const v2 = hi % 1;
-      const w2 = 1 - v2;
+      const v = hi % 1;
+      const w = 1 - v;
       let mg = 0;
       switch (Math.floor(hi)) {
         case 0:
           pure[0] = 1;
-          pure[1] = v2;
+          pure[1] = v;
           pure[2] = 0;
           break;
         case 1:
-          pure[0] = w2;
+          pure[0] = w;
           pure[1] = 1;
           pure[2] = 0;
           break;
         case 2:
           pure[0] = 0;
           pure[1] = 1;
-          pure[2] = v2;
+          pure[2] = v;
           break;
         case 3:
           pure[0] = 0;
-          pure[1] = w2;
+          pure[1] = w;
           pure[2] = 1;
           break;
         case 4:
-          pure[0] = v2;
+          pure[0] = v;
           pure[1] = 0;
           pure[2] = 1;
           break;
         default:
           pure[0] = 1;
           pure[1] = 0;
-          pure[2] = w2;
+          pure[2] = w;
       }
       mg = (1 - c) * g;
       return [
@@ -3218,12 +3219,12 @@ var require_conversions = __commonJS({
     convert.hcg.hsv = function(hcg) {
       const c = hcg[1] / 100;
       const g = hcg[2] / 100;
-      const v2 = c + g * (1 - c);
+      const v = c + g * (1 - c);
       let f = 0;
-      if (v2 > 0) {
-        f = c / v2;
+      if (v > 0) {
+        f = c / v;
       }
-      return [hcg[0], f * 100, v2 * 100];
+      return [hcg[0], f * 100, v * 100];
     };
     convert.hcg.hsl = function(hcg) {
       const c = hcg[1] / 100;
@@ -3240,17 +3241,17 @@ var require_conversions = __commonJS({
     convert.hcg.hwb = function(hcg) {
       const c = hcg[1] / 100;
       const g = hcg[2] / 100;
-      const v2 = c + g * (1 - c);
-      return [hcg[0], (v2 - c) * 100, (1 - v2) * 100];
+      const v = c + g * (1 - c);
+      return [hcg[0], (v - c) * 100, (1 - v) * 100];
     };
     convert.hwb.hcg = function(hwb) {
-      const w2 = hwb[1] / 100;
-      const b2 = hwb[2] / 100;
-      const v2 = 1 - b2;
-      const c = v2 - w2;
+      const w = hwb[1] / 100;
+      const b = hwb[2] / 100;
+      const v = 1 - b;
+      const c = v - w;
       let g = 0;
       if (c < 1) {
-        g = (v2 - c) / (1 - c);
+        g = (v - c) / (1 - c);
       }
       return [hwb[0], c * 100, g * 100];
     };
@@ -3325,21 +3326,21 @@ var require_route = __commonJS({
       }
       return graph;
     }
-    function link(from2, to) {
+    function link(from, to) {
       return function(args) {
-        return to(from2(args));
+        return to(from(args));
       };
     }
     function wrapConversion(toModel, graph) {
-      const path15 = [graph[toModel].parent, toModel];
+      const path3 = [graph[toModel].parent, toModel];
       let fn = conversions[graph[toModel].parent][toModel];
       let cur = graph[toModel].parent;
       while (graph[cur].parent) {
-        path15.unshift(graph[cur].parent);
+        path3.unshift(graph[cur].parent);
         fn = link(conversions[graph[cur].parent][cur], fn);
         cur = graph[cur].parent;
       }
-      fn.conversion = path15;
+      fn.conversion = path3;
       return fn;
     }
     module.exports = function(fromModel) {
@@ -3437,7 +3438,7 @@ var require_ansi_styles = __commonJS({
       return `\x1B[${38 + offset};2;${rgb[0]};${rgb[1]};${rgb[2]}m`;
     };
     var ansi2ansi = (n) => n;
-    var rgb2rgb = (r, g, b2) => [r, g, b2];
+    var rgb2rgb = (r, g, b) => [r, g, b];
     var setLazyProperty = (object, property, get) => {
       Object.defineProperty(object, property, {
         get: () => {
@@ -3454,7 +3455,7 @@ var require_ansi_styles = __commonJS({
       });
     };
     var colorConvert;
-    var makeDynamicStyles = (wrap2, targetSpace, identity2, isBackground) => {
+    var makeDynamicStyles = (wrap, targetSpace, identity, isBackground) => {
       if (colorConvert === void 0) {
         colorConvert = require_color_convert();
       }
@@ -3463,9 +3464,9 @@ var require_ansi_styles = __commonJS({
       for (const [sourceSpace, suite] of Object.entries(colorConvert)) {
         const name = sourceSpace === "ansi16" ? "ansi" : sourceSpace;
         if (sourceSpace === targetSpace) {
-          styles3[name] = wrap2(identity2, offset);
+          styles3[name] = wrap(identity, offset);
         } else if (typeof suite === "object") {
-          styles3[name] = wrap2(suite[targetSpace], offset);
+          styles3[name] = wrap(suite[targetSpace], offset);
         }
       }
       return styles3;
@@ -3579,23 +3580,23 @@ var require_has_flag = __commonJS({
 var require_supports_color = __commonJS({
   "../../node_modules/supports-color/index.js"(exports, module) {
     "use strict";
-    var os13 = __require("os");
+    var os4 = __require("os");
     var tty3 = __require("tty");
     var hasFlag2 = require_has_flag();
-    var { env: env3 } = process;
+    var { env: env2 } = process;
     var forceColor;
     if (hasFlag2("no-color") || hasFlag2("no-colors") || hasFlag2("color=false") || hasFlag2("color=never")) {
       forceColor = 0;
     } else if (hasFlag2("color") || hasFlag2("colors") || hasFlag2("color=true") || hasFlag2("color=always")) {
       forceColor = 1;
     }
-    if ("FORCE_COLOR" in env3) {
-      if (env3.FORCE_COLOR === "true") {
+    if ("FORCE_COLOR" in env2) {
+      if (env2.FORCE_COLOR === "true") {
         forceColor = 1;
-      } else if (env3.FORCE_COLOR === "false") {
+      } else if (env2.FORCE_COLOR === "false") {
         forceColor = 0;
       } else {
-        forceColor = env3.FORCE_COLOR.length === 0 ? 1 : Math.min(parseInt(env3.FORCE_COLOR, 10), 3);
+        forceColor = env2.FORCE_COLOR.length === 0 ? 1 : Math.min(parseInt(env2.FORCE_COLOR, 10), 3);
       }
     }
     function translateLevel2(level) {
@@ -3623,44 +3624,44 @@ var require_supports_color = __commonJS({
         return 0;
       }
       const min = forceColor || 0;
-      if (env3.TERM === "dumb") {
+      if (env2.TERM === "dumb") {
         return min;
       }
       if (process.platform === "win32") {
-        const osRelease = os13.release().split(".");
+        const osRelease = os4.release().split(".");
         if (Number(osRelease[0]) >= 10 && Number(osRelease[2]) >= 10586) {
           return Number(osRelease[2]) >= 14931 ? 3 : 2;
         }
         return 1;
       }
-      if ("CI" in env3) {
-        if (["TRAVIS", "CIRCLECI", "APPVEYOR", "GITLAB_CI", "GITHUB_ACTIONS", "BUILDKITE"].some((sign) => sign in env3) || env3.CI_NAME === "codeship") {
+      if ("CI" in env2) {
+        if (["TRAVIS", "CIRCLECI", "APPVEYOR", "GITLAB_CI", "GITHUB_ACTIONS", "BUILDKITE"].some((sign) => sign in env2) || env2.CI_NAME === "codeship") {
           return 1;
         }
         return min;
       }
-      if ("TEAMCITY_VERSION" in env3) {
-        return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env3.TEAMCITY_VERSION) ? 1 : 0;
+      if ("TEAMCITY_VERSION" in env2) {
+        return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env2.TEAMCITY_VERSION) ? 1 : 0;
       }
-      if (env3.COLORTERM === "truecolor") {
+      if (env2.COLORTERM === "truecolor") {
         return 3;
       }
-      if ("TERM_PROGRAM" in env3) {
-        const version = parseInt((env3.TERM_PROGRAM_VERSION || "").split(".")[0], 10);
-        switch (env3.TERM_PROGRAM) {
+      if ("TERM_PROGRAM" in env2) {
+        const version = parseInt((env2.TERM_PROGRAM_VERSION || "").split(".")[0], 10);
+        switch (env2.TERM_PROGRAM) {
           case "iTerm.app":
             return version >= 3 ? 3 : 2;
           case "Apple_Terminal":
             return 2;
         }
       }
-      if (/-256(color)?$/i.test(env3.TERM)) {
+      if (/-256(color)?$/i.test(env2.TERM)) {
         return 2;
       }
-      if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env3.TERM)) {
+      if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env2.TERM)) {
         return 1;
       }
-      if ("COLORTERM" in env3) {
+      if ("COLORTERM" in env2) {
         return 1;
       }
       return min;
@@ -3840,7 +3841,7 @@ var require_source = __commonJS({
       stringReplaceAll: stringReplaceAll2,
       stringEncaseCRLFWithFirstIndex: stringEncaseCRLFWithFirstIndex2
     } = require_util();
-    var { isArray: isArray4 } = Array;
+    var { isArray } = Array;
     var levelMapping2 = [
       "ansi",
       "ansi",
@@ -3946,24 +3947,24 @@ var require_source = __commonJS({
         parent
       };
     };
-    var createBuilder2 = (self2, _styler, _isEmpty) => {
+    var createBuilder2 = (self, _styler, _isEmpty) => {
       const builder = (...arguments_) => {
-        if (isArray4(arguments_[0]) && isArray4(arguments_[0].raw)) {
+        if (isArray(arguments_[0]) && isArray(arguments_[0].raw)) {
           return applyStyle2(builder, chalkTag(builder, ...arguments_));
         }
         return applyStyle2(builder, arguments_.length === 1 ? "" + arguments_[0] : arguments_.join(" "));
       };
       Object.setPrototypeOf(builder, proto2);
-      builder._generator = self2;
+      builder._generator = self;
       builder._styler = _styler;
       builder._isEmpty = _isEmpty;
       return builder;
     };
-    var applyStyle2 = (self2, string) => {
-      if (self2.level <= 0 || !string) {
-        return self2._isEmpty ? "" : string;
+    var applyStyle2 = (self, string) => {
+      if (self.level <= 0 || !string) {
+        return self._isEmpty ? "" : string;
       }
-      let styler = self2._styler;
+      let styler = self._styler;
       if (styler === void 0) {
         return string;
       }
@@ -3983,7 +3984,7 @@ var require_source = __commonJS({
     var template;
     var chalkTag = (chalk6, ...strings) => {
       const [firstString] = strings;
-      if (!isArray4(firstString) || !isArray4(firstString.raw)) {
+      if (!isArray(firstString) || !isArray(firstString.raw)) {
         return strings.join(" ");
       }
       const arguments_ = strings.slice(1);
@@ -4012,20 +4013,20 @@ var require_source = __commonJS({
 var require_is_docker = __commonJS({
   "../../node_modules/is-docker/index.js"(exports, module) {
     "use strict";
-    var fs11 = __require("fs");
+    var fs4 = __require("fs");
     var isDocker;
     function hasDockerEnv() {
       try {
-        fs11.statSync("/.dockerenv");
+        fs4.statSync("/.dockerenv");
         return true;
-      } catch (_2) {
+      } catch (_) {
         return false;
       }
     }
     function hasDockerCGroup() {
       try {
-        return fs11.readFileSync("/proc/self/cgroup", "utf8").includes("docker");
-      } catch (_2) {
+        return fs4.readFileSync("/proc/self/cgroup", "utf8").includes("docker");
+      } catch (_) {
         return false;
       }
     }
@@ -4042,22 +4043,22 @@ var require_is_docker = __commonJS({
 var require_is_wsl = __commonJS({
   "../../node_modules/is-wsl/index.js"(exports, module) {
     "use strict";
-    var os13 = __require("os");
-    var fs11 = __require("fs");
+    var os4 = __require("os");
+    var fs4 = __require("fs");
     var isDocker = require_is_docker();
     var isWsl = () => {
       if (process.platform !== "linux") {
         return false;
       }
-      if (os13.release().toLowerCase().includes("microsoft")) {
+      if (os4.release().toLowerCase().includes("microsoft")) {
         if (isDocker()) {
           return false;
         }
         return true;
       }
       try {
-        return fs11.readFileSync("/proc/version", "utf8").toLowerCase().includes("microsoft") ? !isDocker() : false;
-      } catch (_2) {
+        return fs4.readFileSync("/proc/version", "utf8").toLowerCase().includes("microsoft") ? !isDocker() : false;
+      } catch (_) {
         return false;
       }
     };
@@ -4095,17 +4096,21 @@ var require_define_lazy_prop = __commonJS({
 // ../../node_modules/open/index.js
 var require_open = __commonJS({
   "../../node_modules/open/index.js"(exports, module) {
-    var path15 = __require("path");
-    var childProcess2 = __require("child_process");
-    var { promises: fs11, constants: fsConstants } = __require("fs");
+    var path3 = __require("path");
+    var childProcess = __require("child_process");
+    var { promises: fs4, constants: fsConstants } = __require("fs");
     var isWsl = require_is_wsl();
     var isDocker = require_is_docker();
     var defineLazyProperty = require_define_lazy_prop();
+<<<<<<< HEAD
     var localXdgOpenPath = path15.join(__dirname, "xdg-open");
+=======
+    var localXdgOpenPath = path3.join(__dirname, "xdg-open");
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
     var { platform: platform2, arch } = process;
     var hasContainerEnv = () => {
       try {
-        fs11.statSync("/run/.containerenv");
+        fs4.statSync("/run/.containerenv");
         return true;
       } catch {
         return false;
@@ -4128,14 +4133,14 @@ var require_open = __commonJS({
         const configFilePath2 = "/etc/wsl.conf";
         let isConfigFileExists = false;
         try {
-          await fs11.access(configFilePath2, fsConstants.F_OK);
+          await fs4.access(configFilePath2, fsConstants.F_OK);
           isConfigFileExists = true;
         } catch {
         }
         if (!isConfigFileExists) {
           return defaultMountPoint;
         }
-        const configContent = await fs11.readFile(configFilePath2, { encoding: "utf8" });
+        const configContent = await fs4.readFile(configFilePath2, { encoding: "utf8" });
         const configMountPoint = /(?<!#.*)root\s*=\s*(?<mountPoint>.*)/g.exec(configContent);
         if (!configMountPoint) {
           return defaultMountPoint;
@@ -4181,11 +4186,15 @@ var require_open = __commonJS({
           }
         }));
       }
-      let command2;
+      let command;
       const cliArguments = [];
       const childProcessOptions = {};
       if (platform2 === "darwin") {
+<<<<<<< HEAD
         command2 = "open";
+=======
+        command = "open";
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
         if (options.wait) {
           cliArguments.push("--wait-apps");
         }
@@ -4200,7 +4209,7 @@ var require_open = __commonJS({
         }
       } else if (platform2 === "win32" || isWsl && !isInsideContainer() && !app) {
         const mountPoint = await getWslDrivesMountPoint();
-        command2 = isWsl ? `${mountPoint}c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe` : `${process.env.SYSTEMROOT}\\System32\\WindowsPowerShell\\v1.0\\powershell`;
+        command = isWsl ? `${mountPoint}c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe` : `${process.env.SYSTEMROOT}\\System32\\WindowsPowerShell\\v1.0\\powershell`;
         cliArguments.push(
           "-NoProfile",
           "-NonInteractive",
@@ -4230,17 +4239,21 @@ var require_open = __commonJS({
         options.target = Buffer.from(encodedArguments.join(" "), "utf16le").toString("base64");
       } else {
         if (app) {
-          command2 = app;
+          command = app;
         } else {
           const isBundled = !__dirname || __dirname === "/";
           let exeLocalXdgOpen = false;
           try {
-            await fs11.access(localXdgOpenPath, fsConstants.X_OK);
+            await fs4.access(localXdgOpenPath, fsConstants.X_OK);
             exeLocalXdgOpen = true;
           } catch {
           }
           const useSystemXdgOpen = process.versions.electron || platform2 === "android" || isBundled || !exeLocalXdgOpen;
+<<<<<<< HEAD
           command2 = useSystemXdgOpen ? "xdg-open" : localXdgOpenPath;
+=======
+          command = useSystemXdgOpen ? "xdg-open" : localXdgOpenPath;
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
         }
         if (appArguments.length > 0) {
           cliArguments.push(...appArguments);
@@ -4256,16 +4269,16 @@ var require_open = __commonJS({
       if (platform2 === "darwin" && appArguments.length > 0) {
         cliArguments.push("--args", ...appArguments);
       }
-      const subprocess = childProcess2.spawn(command2, cliArguments, childProcessOptions);
+      const subprocess = childProcess.spawn(command, cliArguments, childProcessOptions);
       if (options.wait) {
-        return new Promise((resolve6, reject) => {
+        return new Promise((resolve, reject) => {
           subprocess.once("error", reject);
           subprocess.once("close", (exitCode) => {
             if (!options.allowNonzeroExitCode && exitCode > 0) {
               reject(new Error(`Exited with code ${exitCode}`));
               return;
             }
-            resolve6(subprocess);
+            resolve(subprocess);
           });
         });
       }
@@ -4446,8 +4459,8 @@ var require_QRPolynomial = __commonJS({
       multiply: function(e) {
         var num = new Array(this.getLength() + e.getLength() - 1);
         for (var i = 0; i < this.getLength(); i++) {
-          for (var j2 = 0; j2 < e.getLength(); j2++) {
-            num[i + j2] ^= QRMath.gexp(QRMath.glog(this.get(i)) + QRMath.glog(e.get(j2)));
+          for (var j = 0; j < e.getLength(); j++) {
+            num[i + j] ^= QRMath.gexp(QRMath.glog(this.get(i)) + QRMath.glog(e.get(j)));
           }
         }
         return new QRPolynomial(num, 0);
@@ -4461,8 +4474,8 @@ var require_QRPolynomial = __commonJS({
         for (var i = 0; i < this.getLength(); i++) {
           num[i] = this.get(i);
         }
-        for (var x2 = 0; x2 < e.getLength(); x2++) {
-          num[x2] ^= QRMath.gexp(QRMath.glog(e.get(x2)) + ratio);
+        for (var x = 0; x < e.getLength(); x++) {
+          num[x] ^= QRMath.gexp(QRMath.glog(e.get(x)) + ratio);
         }
         return new QRPolynomial(num, 0).mod(e);
       }
@@ -4565,34 +4578,34 @@ var require_QRUtil = __commonJS({
       getPatternPosition: function(typeNumber) {
         return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1];
       },
-      getMask: function(maskPattern, i, j2) {
+      getMask: function(maskPattern, i, j) {
         switch (maskPattern) {
           case QRMaskPattern.PATTERN000:
-            return (i + j2) % 2 === 0;
+            return (i + j) % 2 === 0;
           case QRMaskPattern.PATTERN001:
             return i % 2 === 0;
           case QRMaskPattern.PATTERN010:
-            return j2 % 3 === 0;
+            return j % 3 === 0;
           case QRMaskPattern.PATTERN011:
-            return (i + j2) % 3 === 0;
+            return (i + j) % 3 === 0;
           case QRMaskPattern.PATTERN100:
-            return (Math.floor(i / 2) + Math.floor(j2 / 3)) % 2 === 0;
+            return (Math.floor(i / 2) + Math.floor(j / 3)) % 2 === 0;
           case QRMaskPattern.PATTERN101:
-            return i * j2 % 2 + i * j2 % 3 === 0;
+            return i * j % 2 + i * j % 3 === 0;
           case QRMaskPattern.PATTERN110:
-            return (i * j2 % 2 + i * j2 % 3) % 2 === 0;
+            return (i * j % 2 + i * j % 3) % 2 === 0;
           case QRMaskPattern.PATTERN111:
-            return (i * j2 % 3 + (i + j2) % 2) % 2 === 0;
+            return (i * j % 3 + (i + j) % 2) % 2 === 0;
           default:
             throw new Error("bad maskPattern:" + maskPattern);
         }
       },
       getErrorCorrectPolynomial: function(errorCorrectLength) {
-        var a2 = new QRPolynomial([1], 0);
+        var a = new QRPolynomial([1], 0);
         for (var i = 0; i < errorCorrectLength; i++) {
-          a2 = a2.multiply(new QRPolynomial([1, QRMath.gexp(i)], 0));
+          a = a.multiply(new QRPolynomial([1, QRMath.gexp(i)], 0));
         }
-        return a2;
+        return a;
       },
       getLengthInBits: function(mode, type) {
         if (1 <= type && type < 10) {
@@ -4952,7 +4965,7 @@ var require_QRRSBlock = __commonJS({
         var count = rsBlock[i * 3 + 0];
         var totalCount = rsBlock[i * 3 + 1];
         var dataCount = rsBlock[i * 3 + 2];
-        for (var j2 = 0; j2 < count; j2++) {
+        for (var j = 0; j < count; j++) {
           list.push(new QRRSBlock(totalCount, dataCount));
         }
       }
@@ -5052,8 +5065,8 @@ var require_QRCode = __commonJS({
             for (var i = 0; i < rsBlocks.length; i++) {
               totalDataCount += rsBlocks[i].dataCount;
             }
-            for (var x2 = 0; x2 < this.dataList.length; x2++) {
-              var data = this.dataList[x2];
+            for (var x = 0; x < this.dataList.length; x++) {
+              var data = this.dataList[x];
               buffer.put(data.mode, 4);
               buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber));
               data.write(buffer);
@@ -5123,14 +5136,14 @@ var require_QRCode = __commonJS({
         for (var row = 0; row < this.modules.length; row++) {
           var y = row * cs;
           for (var col = 0; col < this.modules[row].length; col++) {
-            var x2 = col * cs;
+            var x = col * cs;
             var dark = this.modules[row][col];
             if (dark) {
               qr_mc.beginFill(0, 100);
-              qr_mc.moveTo(x2, y);
-              qr_mc.lineTo(x2 + cs, y);
-              qr_mc.lineTo(x2 + cs, y + cs);
-              qr_mc.lineTo(x2, y + cs);
+              qr_mc.moveTo(x, y);
+              qr_mc.lineTo(x + cs, y);
+              qr_mc.lineTo(x + cs, y + cs);
+              qr_mc.lineTo(x, y + cs);
               qr_mc.endFill();
             }
           }
@@ -5154,9 +5167,9 @@ var require_QRCode = __commonJS({
       setupPositionAdjustPattern: function() {
         var pos = QRUtil.getPatternPosition(this.typeNumber);
         for (var i = 0; i < pos.length; i++) {
-          for (var j2 = 0; j2 < pos.length; j2++) {
+          for (var j = 0; j < pos.length; j++) {
             var row = pos[i];
-            var col = pos[j2];
+            var col = pos[j];
             if (this.modules[row][col] !== null) {
               continue;
             }
@@ -5179,23 +5192,23 @@ var require_QRCode = __commonJS({
           mod = !test && (bits >> i & 1) === 1;
           this.modules[Math.floor(i / 3)][i % 3 + this.moduleCount - 8 - 3] = mod;
         }
-        for (var x2 = 0; x2 < 18; x2++) {
-          mod = !test && (bits >> x2 & 1) === 1;
-          this.modules[x2 % 3 + this.moduleCount - 8 - 3][Math.floor(x2 / 3)] = mod;
+        for (var x = 0; x < 18; x++) {
+          mod = !test && (bits >> x & 1) === 1;
+          this.modules[x % 3 + this.moduleCount - 8 - 3][Math.floor(x / 3)] = mod;
         }
       },
       setupTypeInfo: function(test, maskPattern) {
         var data = this.errorCorrectLevel << 3 | maskPattern;
         var bits = QRUtil.getBCHTypeInfo(data);
         var mod;
-        for (var v2 = 0; v2 < 15; v2++) {
-          mod = !test && (bits >> v2 & 1) === 1;
-          if (v2 < 6) {
-            this.modules[v2][8] = mod;
-          } else if (v2 < 8) {
-            this.modules[v2 + 1][8] = mod;
+        for (var v = 0; v < 15; v++) {
+          mod = !test && (bits >> v & 1) === 1;
+          if (v < 6) {
+            this.modules[v][8] = mod;
+          } else if (v < 8) {
+            this.modules[v + 1][8] = mod;
           } else {
-            this.modules[this.moduleCount - 15 + v2][8] = mod;
+            this.modules[this.moduleCount - 15 + v][8] = mod;
           }
         }
         for (var h = 0; h < 15; h++) {
@@ -5259,8 +5272,8 @@ var require_QRCode = __commonJS({
         data.write(buffer);
       }
       var totalDataCount = 0;
-      for (var x2 = 0; x2 < rsBlocks.length; x2++) {
-        totalDataCount += rsBlocks[x2].dataCount;
+      for (var x = 0; x < rsBlocks.length; x++) {
+        totalDataCount += rsBlocks[x].dataCount;
       }
       if (buffer.getLengthInBits() > totalDataCount * 8) {
         throw new Error("code length overflow. (" + buffer.getLengthInBits() + ">" + totalDataCount * 8 + ")");
@@ -5303,9 +5316,9 @@ var require_QRCode = __commonJS({
         var rawPoly = new QRPolynomial(dcdata[r], rsPoly.getLength() - 1);
         var modPoly = rawPoly.mod(rsPoly);
         ecdata[r] = new Array(rsPoly.getLength() - 1);
-        for (var x2 = 0; x2 < ecdata[r].length; x2++) {
-          var modIndex = x2 + modPoly.getLength() - ecdata[r].length;
-          ecdata[r][x2] = modIndex >= 0 ? modPoly.get(modIndex) : 0;
+        for (var x = 0; x < ecdata[r].length; x++) {
+          var modIndex = x + modPoly.getLength() - ecdata[r].length;
+          ecdata[r][x] = modIndex >= 0 ? modPoly.get(modIndex) : 0;
         }
       }
       var totalCodeCount = 0;
@@ -5314,10 +5327,10 @@ var require_QRCode = __commonJS({
       }
       var data = new Array(totalCodeCount);
       var index = 0;
-      for (var z2 = 0; z2 < maxDcCount; z2++) {
+      for (var z = 0; z < maxDcCount; z++) {
         for (var s = 0; s < rsBlocks.length; s++) {
-          if (z2 < dcdata[s].length) {
-            data[index++] = dcdata[s][z2];
+          if (z < dcdata[s].length) {
+            data[index++] = dcdata[s][z];
           }
         }
       }
@@ -5360,15 +5373,15 @@ var require_main = __commonJS({
     };
     module.exports = {
       error: QRErrorCorrectLevel.L,
-      generate: function(input3, opts, cb) {
+      generate: function(input2, opts, cb) {
         if (typeof opts === "function") {
           cb = opts;
           opts = {};
         }
         var qrcode2 = new QRCode(-1, this.error);
-        qrcode2.addData(input3);
+        qrcode2.addData(input2);
         qrcode2.make();
-        var output3 = "";
+        var output2 = "";
         if (opts && opts.small) {
           var BLACK = true, WHITE = false;
           var moduleCount = qrcode2.getModuleCount();
@@ -5385,39 +5398,39 @@ var require_main = __commonJS({
           };
           var borderTop = repeat(platte.BLACK_WHITE).times(moduleCount + 3);
           var borderBottom = repeat(platte.WHITE_BLACK).times(moduleCount + 3);
-          output3 += borderTop + "\n";
+          output2 += borderTop + "\n";
           for (var row = 0; row < moduleCount; row += 2) {
-            output3 += platte.WHITE_ALL;
+            output2 += platte.WHITE_ALL;
             for (var col = 0; col < moduleCount; col++) {
               if (moduleData[row][col] === WHITE && moduleData[row + 1][col] === WHITE) {
-                output3 += platte.WHITE_ALL;
+                output2 += platte.WHITE_ALL;
               } else if (moduleData[row][col] === WHITE && moduleData[row + 1][col] === BLACK) {
-                output3 += platte.WHITE_BLACK;
+                output2 += platte.WHITE_BLACK;
               } else if (moduleData[row][col] === BLACK && moduleData[row + 1][col] === WHITE) {
-                output3 += platte.BLACK_WHITE;
+                output2 += platte.BLACK_WHITE;
               } else {
-                output3 += platte.BLACK_ALL;
+                output2 += platte.BLACK_ALL;
               }
             }
-            output3 += platte.WHITE_ALL + "\n";
+            output2 += platte.WHITE_ALL + "\n";
           }
           if (!oddRow) {
-            output3 += borderBottom;
+            output2 += borderBottom;
           }
         } else {
           var border = repeat(white2).times(qrcode2.getModuleCount() + 3);
-          output3 += border + "\n";
+          output2 += border + "\n";
           qrcode2.modules.forEach(function(row2) {
-            output3 += white2;
-            output3 += row2.map(toCell).join("");
-            output3 += white2 + "\n";
+            output2 += white2;
+            output2 += row2.map(toCell).join("");
+            output2 += white2 + "\n";
           });
-          output3 += border;
+          output2 += border;
         }
         if (cb)
-          cb(output3);
+          cb(output2);
         else
-          console.log(output3);
+          console.log(output2);
       },
       setErrorLevel: function(error2) {
         this.error = QRErrorCorrectLevel[error2] || this.error;
@@ -5447,7 +5460,7 @@ var require_buffer_util = __commonJS({
   "../../node_modules/ws/lib/buffer-util.js"(exports, module) {
     "use strict";
     var { EMPTY_BUFFER } = require_constants();
-    function concat2(list, totalLength) {
+    function concat(list, totalLength) {
       if (list.length === 0)
         return EMPTY_BUFFER;
       if (list.length === 1)
@@ -5463,9 +5476,9 @@ var require_buffer_util = __commonJS({
         return target.slice(0, offset);
       return target;
     }
-    function _mask(source2, mask, output3, offset, length) {
+    function _mask(source, mask, output2, offset, length) {
       for (let i = 0; i < length; i++) {
-        output3[offset + i] = source2[i] ^ mask[i & 3];
+        output2[offset + i] = source[i] ^ mask[i & 3];
       }
     }
     function _unmask(buffer, mask) {
@@ -5499,12 +5512,12 @@ var require_buffer_util = __commonJS({
       const bufferUtil = __require("bufferutil");
       const bu = bufferUtil.BufferUtil || bufferUtil;
       module.exports = {
-        concat: concat2,
-        mask(source2, mask, output3, offset, length) {
+        concat,
+        mask(source, mask, output2, offset, length) {
           if (length < 48)
-            _mask(source2, mask, output3, offset, length);
+            _mask(source, mask, output2, offset, length);
           else
-            bu.mask(source2, mask, output3, offset, length);
+            bu.mask(source, mask, output2, offset, length);
         },
         toArrayBuffer,
         toBuffer,
@@ -5517,7 +5530,7 @@ var require_buffer_util = __commonJS({
       };
     } catch (e) {
       module.exports = {
-        concat: concat2,
+        concat,
         mask: _mask,
         toArrayBuffer,
         toBuffer,
@@ -5593,7 +5606,7 @@ var require_permessage_deflate = __commonJS({
     var kBuffers = Symbol("buffers");
     var kError = Symbol("error");
     var zlibLimiter;
-    var PerMessageDeflate2 = class {
+    var PerMessageDeflate = class {
       /**
        * Creates a PerMessageDeflate instance.
        *
@@ -5932,7 +5945,7 @@ var require_permessage_deflate = __commonJS({
         });
       }
     };
-    module.exports = PerMessageDeflate2;
+    module.exports = PerMessageDeflate;
     function deflateOnData(chunk) {
       this[kBuffers].push(chunk);
       this[kTotalLength] += chunk.length;
@@ -6018,14 +6031,14 @@ var require_receiver = __commonJS({
   "../../node_modules/ws/lib/receiver.js"(exports, module) {
     "use strict";
     var { Writable } = __require("stream");
-    var PerMessageDeflate2 = require_permessage_deflate();
+    var PerMessageDeflate = require_permessage_deflate();
     var {
       BINARY_TYPES,
       EMPTY_BUFFER,
       kStatusCode,
       kWebSocket
     } = require_constants();
-    var { concat: concat2, toArrayBuffer, unmask } = require_buffer_util();
+    var { concat, toArrayBuffer, unmask } = require_buffer_util();
     var { isValidStatusCode, isValidUTF8 } = require_validation();
     var GET_INFO = 0;
     var GET_PAYLOAD_LENGTH_16 = 1;
@@ -6033,7 +6046,7 @@ var require_receiver = __commonJS({
     var GET_MASK = 3;
     var GET_DATA = 4;
     var INFLATING = 5;
-    var Receiver2 = class extends Writable {
+    var Receiver = class extends Writable {
       /**
        * Creates a Receiver instance.
        *
@@ -6042,13 +6055,19 @@ var require_receiver = __commonJS({
        * @param {Boolean} [isServer=false] Specifies whether to operate in client or
        *     server mode
        * @param {Number} [maxPayload=0] The maximum allowed message length
+       * @param {Number} [maxBufferedChunks=0] The maximum number of
+       *     buffered data chunks
+       * @param {Number} [maxFragments=0] The maximum number of message
+       *     fragments
        */
-      constructor(binaryType, extensions, isServer, maxPayload) {
+      constructor(binaryType, extensions, isServer, maxPayload, maxBufferedChunks, maxFragments) {
         super();
         this._binaryType = binaryType || BINARY_TYPES[0];
         this[kWebSocket] = void 0;
         this._extensions = extensions || {};
         this._isServer = !!isServer;
+        this._maxBufferedChunks = maxBufferedChunks | 0;
+        this._maxFragments = maxFragments | 0;
         this._maxPayload = maxPayload | 0;
         this._bufferedBytes = 0;
         this._buffers = [];
@@ -6076,6 +6095,17 @@ var require_receiver = __commonJS({
       _write(chunk, encoding, cb) {
         if (this._opcode === 8 && this._state == GET_INFO)
           return cb();
+        if (this._maxBufferedChunks > 0 && this._buffers.length >= this._maxBufferedChunks) {
+          return cb(
+            error2(
+              RangeError,
+              "Too many buffered chunks",
+              false,
+              1008,
+              "WS_ERR_TOO_MANY_BUFFERED_PARTS"
+            )
+          );
+        }
         this._bufferedBytes += chunk.length;
         this._buffers.push(chunk);
         this.startLoop(cb);
@@ -6166,7 +6196,7 @@ var require_receiver = __commonJS({
           );
         }
         const compressed = (buf[0] & 64) === 64;
-        if (compressed && !this._extensions[PerMessageDeflate2.extensionName]) {
+        if (compressed && !this._extensions[PerMessageDeflate.extensionName]) {
           this._loop = false;
           return error2(
             RangeError,
@@ -6389,6 +6419,16 @@ var require_receiver = __commonJS({
           return;
         }
         if (data.length) {
+          if (this._maxFragments > 0 && this._fragments.length >= this._maxFragments) {
+            this._loop = false;
+            return error2(
+              RangeError,
+              "Too many message fragments",
+              false,
+              1008,
+              "WS_ERR_TOO_MANY_BUFFERED_PARTS"
+            );
+          }
           this._messageLength = this._totalPayloadLength;
           this._fragments.push(data);
         }
@@ -6402,7 +6442,7 @@ var require_receiver = __commonJS({
        * @private
        */
       decompress(data, cb) {
-        const perMessageDeflate = this._extensions[PerMessageDeflate2.extensionName];
+        const perMessageDeflate = this._extensions[PerMessageDeflate.extensionName];
         perMessageDeflate.decompress(data, this._fin, (err, buf) => {
           if (err)
             return cb(err);
@@ -6416,6 +6456,17 @@ var require_receiver = __commonJS({
                   false,
                   1009,
                   "WS_ERR_UNSUPPORTED_MESSAGE_LENGTH"
+                )
+              );
+            }
+            if (this._maxFragments > 0 && this._fragments.length >= this._maxFragments) {
+              return cb(
+                error2(
+                  RangeError,
+                  "Too many message fragments",
+                  false,
+                  1008,
+                  "WS_ERR_TOO_MANY_BUFFERED_PARTS"
                 )
               );
             }
@@ -6444,15 +6495,15 @@ var require_receiver = __commonJS({
           if (this._opcode === 2) {
             let data;
             if (this._binaryType === "nodebuffer") {
-              data = concat2(fragments, messageLength);
+              data = concat(fragments, messageLength);
             } else if (this._binaryType === "arraybuffer") {
-              data = toArrayBuffer(concat2(fragments, messageLength));
+              data = toArrayBuffer(concat(fragments, messageLength));
             } else {
               data = fragments;
             }
             this.emit("message", data);
           } else {
-            const buf = concat2(fragments, messageLength);
+            const buf = concat(fragments, messageLength);
             if (!isValidUTF8(buf)) {
               this._loop = false;
               return error2(
@@ -6521,7 +6572,7 @@ var require_receiver = __commonJS({
         this._state = GET_INFO;
       }
     };
-    module.exports = Receiver2;
+    module.exports = Receiver;
     function error2(ErrorCtor, message, prefix, statusCode, errorCode) {
       const err = new ErrorCtor(
         prefix ? `Invalid WebSocket frame: ${message}` : message
@@ -6541,12 +6592,12 @@ var require_sender = __commonJS({
     var net = __require("net");
     var tls = __require("tls");
     var { randomFillSync } = __require("crypto");
-    var PerMessageDeflate2 = require_permessage_deflate();
+    var PerMessageDeflate = require_permessage_deflate();
     var { EMPTY_BUFFER } = require_constants();
     var { isValidStatusCode } = require_validation();
     var { mask: applyMask, toBuffer } = require_buffer_util();
     var mask = Buffer.alloc(4);
-    var Sender2 = class _Sender {
+    var Sender = class _Sender {
       /**
        * Creates a Sender instance.
        *
@@ -6580,7 +6631,7 @@ var require_sender = __commonJS({
        * @public
        */
       static frame(data, options) {
-        const merge2 = options.mask && options.readOnly;
+        const merge = options.mask && options.readOnly;
         let offset = options.mask ? 6 : 2;
         let payloadLength = data.length;
         if (data.length >= 65536) {
@@ -6590,7 +6641,7 @@ var require_sender = __commonJS({
           offset += 2;
           payloadLength = 126;
         }
-        const target = Buffer.allocUnsafe(merge2 ? data.length + offset : offset);
+        const target = Buffer.allocUnsafe(merge ? data.length + offset : offset);
         target[0] = options.fin ? options.opcode | 128 : options.opcode;
         if (options.rsv1)
           target[0] |= 64;
@@ -6609,7 +6660,7 @@ var require_sender = __commonJS({
         target[offset - 3] = mask[1];
         target[offset - 2] = mask[2];
         target[offset - 1] = mask[3];
-        if (merge2) {
+        if (merge) {
           applyMask(data, mask, target, offset, data.length);
           return [target];
         }
@@ -6767,7 +6818,7 @@ var require_sender = __commonJS({
        */
       send(data, options, cb) {
         const buf = toBuffer(data);
-        const perMessageDeflate = this._extensions[PerMessageDeflate2.extensionName];
+        const perMessageDeflate = this._extensions[PerMessageDeflate.extensionName];
         let opcode = options.binary ? 2 : 1;
         let rsv1 = options.compress;
         if (this._firstFragment) {
@@ -6832,10 +6883,10 @@ var require_sender = __commonJS({
           this.sendFrame(_Sender.frame(data, options), cb);
           return;
         }
-        const perMessageDeflate = this._extensions[PerMessageDeflate2.extensionName];
+        const perMessageDeflate = this._extensions[PerMessageDeflate.extensionName];
         this._bufferedBytes += data.length;
         this._deflating = true;
-        perMessageDeflate.compress(data, options.fin, (_2, buf) => {
+        perMessageDeflate.compress(data, options.fin, (_, buf) => {
           if (this._socket.destroyed) {
             const err = new Error(
               "The socket was closed while data was being compressed"
@@ -6896,7 +6947,7 @@ var require_sender = __commonJS({
         }
       }
     };
-    module.exports = Sender2;
+    module.exports = Sender;
   }
 });
 
@@ -6904,7 +6955,7 @@ var require_sender = __commonJS({
 var require_event_target = __commonJS({
   "../../node_modules/ws/lib/event-target.js"(exports, module) {
     "use strict";
-    var Event2 = class {
+    var Event = class {
       /**
        * Create a new `Event`.
        *
@@ -6917,7 +6968,7 @@ var require_event_target = __commonJS({
         this.type = type;
       }
     };
-    var MessageEvent = class extends Event2 {
+    var MessageEvent = class extends Event {
       /**
        * Create a new `MessageEvent`.
        *
@@ -6930,7 +6981,7 @@ var require_event_target = __commonJS({
         this.data = data;
       }
     };
-    var CloseEvent = class extends Event2 {
+    var CloseEvent = class extends Event {
       /**
        * Create a new `CloseEvent`.
        *
@@ -6948,7 +6999,7 @@ var require_event_target = __commonJS({
         this.code = code;
       }
     };
-    var OpenEvent = class extends Event2 {
+    var OpenEvent = class extends Event {
       /**
        * Create a new `OpenEvent`.
        *
@@ -6959,7 +7010,7 @@ var require_event_target = __commonJS({
         super("open", target);
       }
     };
-    var ErrorEvent = class extends Event2 {
+    var ErrorEvent = class extends Event {
       /**
        * Create a new `ErrorEvent`.
        *
@@ -7325,24 +7376,24 @@ var require_extension = __commonJS({
       }
       return offers;
     }
-    function format4(extensions) {
-      return Object.keys(extensions).map((extension2) => {
-        let configurations = extensions[extension2];
+    function format2(extensions) {
+      return Object.keys(extensions).map((extension) => {
+        let configurations = extensions[extension];
         if (!Array.isArray(configurations))
           configurations = [configurations];
         return configurations.map((params) => {
-          return [extension2].concat(
+          return [extension].concat(
             Object.keys(params).map((k) => {
               let values = params[k];
               if (!Array.isArray(values))
                 values = [values];
-              return values.map((v2) => v2 === true ? k : `${k}=${v2}`).join("; ");
+              return values.map((v) => v === true ? k : `${k}=${v}`).join("; ");
             })
           ).join("; ");
         }).join(", ");
       }).join(", ");
     }
-    module.exports = { format: format4, parse };
+    module.exports = { format: format2, parse };
   }
 });
 
@@ -7350,17 +7401,17 @@ var require_extension = __commonJS({
 var require_websocket = __commonJS({
   "../../node_modules/ws/lib/websocket.js"(exports, module) {
     "use strict";
-    var EventEmitter5 = __require("events");
-    var https2 = __require("https");
-    var http3 = __require("http");
+    var EventEmitter2 = __require("events");
+    var https = __require("https");
+    var http2 = __require("http");
     var net = __require("net");
     var tls = __require("tls");
     var { randomBytes: randomBytes2, createHash: createHash3 } = __require("crypto");
     var { Readable } = __require("stream");
-    var { URL: URL3 } = __require("url");
-    var PerMessageDeflate2 = require_permessage_deflate();
-    var Receiver2 = require_receiver();
-    var Sender2 = require_sender();
+    var { URL: URL2 } = __require("url");
+    var PerMessageDeflate = require_permessage_deflate();
+    var Receiver = require_receiver();
+    var Sender = require_sender();
     var {
       BINARY_TYPES,
       EMPTY_BUFFER,
@@ -7370,12 +7421,12 @@ var require_websocket = __commonJS({
       NOOP
     } = require_constants();
     var { addEventListener, removeEventListener } = require_event_target();
-    var { format: format4, parse } = require_extension();
+    var { format: format2, parse } = require_extension();
     var { toBuffer } = require_buffer_util();
     var readyStates = ["CONNECTING", "OPEN", "CLOSING", "CLOSED"];
     var protocolVersions = [8, 13];
     var closeTimeout = 30 * 1e3;
-    var WebSocket4 = class _WebSocket extends EventEmitter5 {
+    var WebSocket2 = class _WebSocket extends EventEmitter2 {
       /**
        * Create a new `WebSocket`.
        *
@@ -7508,16 +7559,22 @@ var require_websocket = __commonJS({
        *     server and client
        * @param {Buffer} head The first packet of the upgraded stream
        * @param {Number} [maxPayload=0] The maximum allowed message size
+       * @param {Number} [maxBufferedChunks=0] The maximum number of
+       *     buffered data chunks
+       * @param {Number} [maxFragments=0] The maximum number of message
+       *     fragments
        * @private
        */
-      setSocket(socket, head, maxPayload) {
-        const receiver = new Receiver2(
+      setSocket(socket, head, maxPayload, maxBufferedChunks, maxFragments) {
+        const receiver = new Receiver(
           this.binaryType,
           this._extensions,
           this._isServer,
-          maxPayload
+          maxPayload,
+          maxBufferedChunks,
+          maxFragments
         );
-        this._sender = new Sender2(socket, this._extensions);
+        this._sender = new Sender(socket, this._extensions);
         this._receiver = receiver;
         this._socket = socket;
         receiver[kWebSocket] = this;
@@ -7550,8 +7607,8 @@ var require_websocket = __commonJS({
           this.emit("close", this._closeCode, this._closeMessage);
           return;
         }
-        if (this._extensions[PerMessageDeflate2.extensionName]) {
-          this._extensions[PerMessageDeflate2.extensionName].cleanup();
+        if (this._extensions[PerMessageDeflate.extensionName]) {
+          this._extensions[PerMessageDeflate.extensionName].cleanup();
         }
         this._receiver.removeAllListeners();
         this._readyState = _WebSocket.CLOSED;
@@ -7697,7 +7754,7 @@ var require_websocket = __commonJS({
           fin: true,
           ...options
         };
-        if (!this._extensions[PerMessageDeflate2.extensionName]) {
+        if (!this._extensions[PerMessageDeflate.extensionName]) {
           opts.compress = false;
         }
         this._sender.send(data || EMPTY_BUFFER, opts, cb);
@@ -7720,35 +7777,35 @@ var require_websocket = __commonJS({
         }
       }
     };
-    Object.defineProperty(WebSocket4, "CONNECTING", {
+    Object.defineProperty(WebSocket2, "CONNECTING", {
       enumerable: true,
       value: readyStates.indexOf("CONNECTING")
     });
-    Object.defineProperty(WebSocket4.prototype, "CONNECTING", {
+    Object.defineProperty(WebSocket2.prototype, "CONNECTING", {
       enumerable: true,
       value: readyStates.indexOf("CONNECTING")
     });
-    Object.defineProperty(WebSocket4, "OPEN", {
+    Object.defineProperty(WebSocket2, "OPEN", {
       enumerable: true,
       value: readyStates.indexOf("OPEN")
     });
-    Object.defineProperty(WebSocket4.prototype, "OPEN", {
+    Object.defineProperty(WebSocket2.prototype, "OPEN", {
       enumerable: true,
       value: readyStates.indexOf("OPEN")
     });
-    Object.defineProperty(WebSocket4, "CLOSING", {
+    Object.defineProperty(WebSocket2, "CLOSING", {
       enumerable: true,
       value: readyStates.indexOf("CLOSING")
     });
-    Object.defineProperty(WebSocket4.prototype, "CLOSING", {
+    Object.defineProperty(WebSocket2.prototype, "CLOSING", {
       enumerable: true,
       value: readyStates.indexOf("CLOSING")
     });
-    Object.defineProperty(WebSocket4, "CLOSED", {
+    Object.defineProperty(WebSocket2, "CLOSED", {
       enumerable: true,
       value: readyStates.indexOf("CLOSED")
     });
-    Object.defineProperty(WebSocket4.prototype, "CLOSED", {
+    Object.defineProperty(WebSocket2.prototype, "CLOSED", {
       enumerable: true,
       value: readyStates.indexOf("CLOSED")
     });
@@ -7760,10 +7817,10 @@ var require_websocket = __commonJS({
       "readyState",
       "url"
     ].forEach((property) => {
-      Object.defineProperty(WebSocket4.prototype, property, { enumerable: true });
+      Object.defineProperty(WebSocket2.prototype, property, { enumerable: true });
     });
     ["open", "error", "close", "message"].forEach((method) => {
-      Object.defineProperty(WebSocket4.prototype, `on${method}`, {
+      Object.defineProperty(WebSocket2.prototype, `on${method}`, {
         enumerable: true,
         get() {
           const listeners = this.listeners(method);
@@ -7783,12 +7840,14 @@ var require_websocket = __commonJS({
         }
       });
     });
-    WebSocket4.prototype.addEventListener = addEventListener;
-    WebSocket4.prototype.removeEventListener = removeEventListener;
-    module.exports = WebSocket4;
+    WebSocket2.prototype.addEventListener = addEventListener;
+    WebSocket2.prototype.removeEventListener = removeEventListener;
+    module.exports = WebSocket2;
     function initAsClient(websocket, address, protocols, options) {
       const opts = {
         protocolVersion: protocolVersions[1],
+        maxBufferedChunks: 1024 * 1024,
+        maxFragments: 128 * 1024,
         maxPayload: 100 * 1024 * 1024,
         perMessageDeflate: true,
         followRedirects: false,
@@ -7810,11 +7869,11 @@ var require_websocket = __commonJS({
         );
       }
       let parsedUrl;
-      if (address instanceof URL3) {
+      if (address instanceof URL2) {
         parsedUrl = address;
         websocket._url = address.href;
       } else {
-        parsedUrl = new URL3(address);
+        parsedUrl = new URL2(address);
         websocket._url = address;
       }
       const isUnixSocket = parsedUrl.protocol === "ws+unix:";
@@ -7830,7 +7889,7 @@ var require_websocket = __commonJS({
       const isSecure = parsedUrl.protocol === "wss:" || parsedUrl.protocol === "https:";
       const defaultPort = isSecure ? 443 : 80;
       const key = randomBytes2(16).toString("base64");
-      const get = isSecure ? https2.get : http3.get;
+      const get = isSecure ? https.get : http2.get;
       let perMessageDeflate;
       opts.createConnection = isSecure ? tlsConnect : netConnect;
       opts.defaultPort = opts.defaultPort || defaultPort;
@@ -7846,13 +7905,13 @@ var require_websocket = __commonJS({
       opts.path = parsedUrl.pathname + parsedUrl.search;
       opts.timeout = opts.handshakeTimeout;
       if (opts.perMessageDeflate) {
-        perMessageDeflate = new PerMessageDeflate2(
+        perMessageDeflate = new PerMessageDeflate(
           opts.perMessageDeflate !== true ? opts.perMessageDeflate : {},
           false,
           opts.maxPayload
         );
-        opts.headers["Sec-WebSocket-Extensions"] = format4({
-          [PerMessageDeflate2.extensionName]: perMessageDeflate.offer()
+        opts.headers["Sec-WebSocket-Extensions"] = format2({
+          [PerMessageDeflate.extensionName]: perMessageDeflate.offer()
         });
       }
       if (protocols) {
@@ -7922,7 +7981,7 @@ var require_websocket = __commonJS({
           req.abort();
           let addr;
           try {
-            addr = new URL3(location, address);
+            addr = new URL2(location, address);
           } catch (err) {
             emitErrorAndClose(websocket, err);
             return;
@@ -7938,7 +7997,7 @@ var require_websocket = __commonJS({
       });
       req.on("upgrade", (res, socket, head) => {
         websocket.emit("upgrade", res);
-        if (websocket.readyState !== WebSocket4.CONNECTING)
+        if (websocket.readyState !== WebSocket2.CONNECTING)
           return;
         req = websocket._req = null;
         const upgrade = res.headers.upgrade;
@@ -7984,26 +8043,32 @@ var require_websocket = __commonJS({
           }
           const extensionNames = Object.keys(extensions);
           if (extensionNames.length) {
-            if (extensionNames.length !== 1 || extensionNames[0] !== PerMessageDeflate2.extensionName) {
+            if (extensionNames.length !== 1 || extensionNames[0] !== PerMessageDeflate.extensionName) {
               const message = "Server indicated an extension that was not requested";
               abortHandshake(websocket, socket, message);
               return;
             }
             try {
-              perMessageDeflate.accept(extensions[PerMessageDeflate2.extensionName]);
+              perMessageDeflate.accept(extensions[PerMessageDeflate.extensionName]);
             } catch (err) {
               const message = "Invalid Sec-WebSocket-Extensions header";
               abortHandshake(websocket, socket, message);
               return;
             }
-            websocket._extensions[PerMessageDeflate2.extensionName] = perMessageDeflate;
+            websocket._extensions[PerMessageDeflate.extensionName] = perMessageDeflate;
           }
         }
-        websocket.setSocket(socket, head, opts.maxPayload);
+        websocket.setSocket(
+          socket,
+          head,
+          opts.maxPayload,
+          opts.maxBufferedChunks,
+          opts.maxFragments
+        );
       });
     }
     function emitErrorAndClose(websocket, err) {
-      websocket._readyState = WebSocket4.CLOSING;
+      websocket._readyState = WebSocket2.CLOSING;
       websocket.emit("error", err);
       websocket.emitClose();
     }
@@ -8019,7 +8084,7 @@ var require_websocket = __commonJS({
       return tls.connect(options);
     }
     function abortHandshake(websocket, stream, message) {
-      websocket._readyState = WebSocket4.CLOSING;
+      websocket._readyState = WebSocket2.CLOSING;
       const err = new Error(message);
       Error.captureStackTrace(err, abortHandshake);
       if (stream.setHeader) {
@@ -8098,7 +8163,7 @@ var require_websocket = __commonJS({
       this.removeListener("close", socketOnClose);
       this.removeListener("data", socketOnData);
       this.removeListener("end", socketOnEnd);
-      websocket._readyState = WebSocket4.CLOSING;
+      websocket._readyState = WebSocket2.CLOSING;
       let chunk;
       if (!this._readableState.endEmitted && !websocket._closeFrameReceived && !websocket._receiver._writableState.errorEmitted && (chunk = websocket._socket.read()) !== null) {
         websocket._receiver.write(chunk);
@@ -8120,7 +8185,7 @@ var require_websocket = __commonJS({
     }
     function socketOnEnd() {
       const websocket = this[kWebSocket];
-      websocket._readyState = WebSocket4.CLOSING;
+      websocket._readyState = WebSocket2.CLOSING;
       websocket._receiver.end();
       this.end();
     }
@@ -8129,7 +8194,7 @@ var require_websocket = __commonJS({
       this.removeListener("error", socketOnError);
       this.on("error", NOOP);
       if (websocket) {
-        websocket._readyState = WebSocket4.CLOSING;
+        websocket._readyState = WebSocket2.CLOSING;
         this.destroy();
       }
     }
@@ -8156,7 +8221,7 @@ var require_stream = __commonJS({
         this.emit("error", err);
       }
     }
-    function createWebSocketStream2(ws, options) {
+    function createWebSocketStream(ws, options) {
       let resumeOnReceiverDrain = true;
       let terminateOnDestroy = true;
       function receiverOnDrain() {
@@ -8255,7 +8320,7 @@ var require_stream = __commonJS({
       duplex.on("error", duplexOnError);
       return duplex;
     }
-    module.exports = createWebSocketStream2;
+    module.exports = createWebSocketStream;
   }
 });
 
@@ -8263,21 +8328,27 @@ var require_stream = __commonJS({
 var require_websocket_server = __commonJS({
   "../../node_modules/ws/lib/websocket-server.js"(exports, module) {
     "use strict";
-    var EventEmitter5 = __require("events");
-    var http3 = __require("http");
-    var https2 = __require("https");
+    var EventEmitter2 = __require("events");
+    var http2 = __require("http");
+    var https = __require("https");
     var net = __require("net");
     var tls = __require("tls");
     var { createHash: createHash3 } = __require("crypto");
+<<<<<<< HEAD
     var PerMessageDeflate2 = require_permessage_deflate();
     var WebSocket4 = require_websocket();
     var { format: format4, parse } = require_extension();
+=======
+    var PerMessageDeflate = require_permessage_deflate();
+    var WebSocket2 = require_websocket();
+    var { format: format2, parse } = require_extension();
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
     var { GUID, kWebSocket } = require_constants();
     var keyRegex = /^[+/0-9A-Za-z]{22}==$/;
     var RUNNING = 0;
     var CLOSING = 1;
     var CLOSED = 2;
-    var WebSocketServer2 = class extends EventEmitter5 {
+    var WebSocketServer = class extends EventEmitter2 {
       /**
        * Create a `WebSocketServer` instance.
        *
@@ -8288,6 +8359,10 @@ var require_websocket_server = __commonJS({
        *     track clients
        * @param {Function} [options.handleProtocols] A hook to handle protocols
        * @param {String} [options.host] The hostname where to bind the server
+       * @param {Number} [options.maxBufferedChunks=1048576] The maximum number of
+       *     buffered data chunks
+       * @param {Number} [options.maxFragments=131072] The maximum number of message
+       *     fragments
        * @param {Number} [options.maxPayload=104857600] The maximum allowed message
        *     size
        * @param {Boolean} [options.noServer=false] Enable no server mode
@@ -8303,6 +8378,8 @@ var require_websocket_server = __commonJS({
       constructor(options, callback) {
         super();
         options = {
+          maxBufferedChunks: 1024 * 1024,
+          maxFragments: 128 * 1024,
           maxPayload: 100 * 1024 * 1024,
           perMessageDeflate: false,
           handleProtocols: null,
@@ -8323,8 +8400,8 @@ var require_websocket_server = __commonJS({
           );
         }
         if (options.port != null) {
-          this._server = http3.createServer((req, res) => {
-            const body = http3.STATUS_CODES[426];
+          this._server = http2.createServer((req, res) => {
+            const body = http2.STATUS_CODES[426];
             res.writeHead(426, {
               "Content-Length": body.length,
               "Content-Type": "text/plain"
@@ -8441,16 +8518,16 @@ var require_websocket_server = __commonJS({
           return abortHandshake(socket, 400);
         }
         if (this.options.perMessageDeflate) {
-          const perMessageDeflate = new PerMessageDeflate2(
+          const perMessageDeflate = new PerMessageDeflate(
             this.options.perMessageDeflate,
             true,
             this.options.maxPayload
           );
           try {
             const offers = parse(req.headers["sec-websocket-extensions"]);
-            if (offers[PerMessageDeflate2.extensionName]) {
-              perMessageDeflate.accept(offers[PerMessageDeflate2.extensionName]);
-              extensions[PerMessageDeflate2.extensionName] = perMessageDeflate;
+            if (offers[PerMessageDeflate.extensionName]) {
+              perMessageDeflate.accept(offers[PerMessageDeflate.extensionName]);
+              extensions[PerMessageDeflate.extensionName] = perMessageDeflate;
             }
           } catch (err) {
             return abortHandshake(socket, 400);
@@ -8506,7 +8583,7 @@ var require_websocket_server = __commonJS({
           "Connection: Upgrade",
           `Sec-WebSocket-Accept: ${digest}`
         ];
-        const ws = new WebSocket4(null);
+        const ws = new WebSocket2(null);
         let protocol = req.headers["sec-websocket-protocol"];
         if (protocol) {
           protocol = protocol.split(",").map(trim);
@@ -8520,10 +8597,10 @@ var require_websocket_server = __commonJS({
             ws._protocol = protocol;
           }
         }
-        if (extensions[PerMessageDeflate2.extensionName]) {
-          const params = extensions[PerMessageDeflate2.extensionName].params;
-          const value = format4({
-            [PerMessageDeflate2.extensionName]: [params]
+        if (extensions[PerMessageDeflate.extensionName]) {
+          const params = extensions[PerMessageDeflate.extensionName].params;
+          const value = format2({
+            [PerMessageDeflate.extensionName]: [params]
           });
           headers.push(`Sec-WebSocket-Extensions: ${value}`);
           ws._extensions = extensions;
@@ -8531,7 +8608,13 @@ var require_websocket_server = __commonJS({
         this.emit("headers", headers, req);
         socket.write(headers.concat("\r\n").join("\r\n"));
         socket.removeListener("error", socketOnError);
-        ws.setSocket(socket, head, this.options.maxPayload);
+        ws.setSocket(
+          socket,
+          head,
+          this.options.maxPayload,
+          this.options.maxBufferedChunks,
+          this.options.maxFragments
+        );
         if (this.clients) {
           this.clients.add(ws);
           ws.on("close", () => this.clients.delete(ws));
@@ -8539,13 +8622,13 @@ var require_websocket_server = __commonJS({
         cb(ws, req);
       }
     };
-    module.exports = WebSocketServer2;
-    function addListeners(server, map2) {
-      for (const event of Object.keys(map2))
-        server.on(event, map2[event]);
+    module.exports = WebSocketServer;
+    function addListeners(server, map) {
+      for (const event of Object.keys(map))
+        server.on(event, map[event]);
       return function removeListeners() {
-        for (const event of Object.keys(map2)) {
-          server.removeListener(event, map2[event]);
+        for (const event of Object.keys(map)) {
+          server.removeListener(event, map[event]);
         }
       };
     }
@@ -8558,7 +8641,7 @@ var require_websocket_server = __commonJS({
     }
     function abortHandshake(socket, code, message, headers) {
       if (socket.writable) {
-        message = message || http3.STATUS_CODES[code];
+        message = message || http2.STATUS_CODES[code];
         headers = {
           Connection: "close",
           "Content-Type": "text/html",
@@ -8566,7 +8649,7 @@ var require_websocket_server = __commonJS({
           ...headers
         };
         socket.write(
-          `HTTP/1.1 ${code} ${http3.STATUS_CODES[code]}\r
+          `HTTP/1.1 ${code} ${http2.STATUS_CODES[code]}\r
 ` + Object.keys(headers).map((h) => `${h}: ${headers[h]}`).join("\r\n") + "\r\n\r\n" + message
         );
       }
@@ -8583,6 +8666,7 @@ var require_websocket_server = __commonJS({
 var require_ws = __commonJS({
   "../../node_modules/ws/index.js"(exports, module) {
     "use strict";
+<<<<<<< HEAD
     var WebSocket4 = require_websocket();
     WebSocket4.createWebSocketStream = require_stream();
     WebSocket4.Server = require_websocket_server();
@@ -69673,17 +69757,31 @@ var init_puppeteer_core = __esm({
       )
     } = puppeteer);
     puppeteer_core_default = puppeteer;
+=======
+    var WebSocket2 = require_websocket();
+    WebSocket2.createWebSocketStream = require_stream();
+    WebSocket2.Server = require_websocket_server();
+    WebSocket2.Receiver = require_receiver();
+    WebSocket2.Sender = require_sender();
+    module.exports = WebSocket2;
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
   }
 });
 
 // src/index.ts
 var import_commander = __toESM(require_commander(), 1);
+<<<<<<< HEAD
 import { spawnSync as spawnSync4 } from "node:child_process";
 import { createInterface as createInterface2 } from "node:readline/promises";
 import { stdin as input2, stdout as output2 } from "node:process";
 import { readFileSync as readFileSync6, writeFileSync as writeFileSync2, existsSync as existsSync4, mkdirSync as mkdirSync2 } from "node:fs";
 import { join as join4 } from "node:path";
 import { homedir as homedir2 } from "node:os";
+=======
+import { spawnSync } from "node:child_process";
+import { createInterface } from "node:readline/promises";
+import { stdin as input, stdout as output } from "node:process";
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
 
 // ../../node_modules/ora/index.js
 import process8 from "node:process";
@@ -70150,19 +70248,19 @@ var createStyler = (open2, close, parent) => {
     parent
   };
 };
-var createBuilder = (self2, _styler, _isEmpty) => {
+var createBuilder = (self, _styler, _isEmpty) => {
   const builder = (...arguments_) => applyStyle(builder, arguments_.length === 1 ? "" + arguments_[0] : arguments_.join(" "));
   Object.setPrototypeOf(builder, proto);
-  builder[GENERATOR] = self2;
+  builder[GENERATOR] = self;
   builder[STYLER] = _styler;
   builder[IS_EMPTY] = _isEmpty;
   return builder;
 };
-var applyStyle = (self2, string) => {
-  if (self2.level <= 0 || !string) {
-    return self2[IS_EMPTY] ? "" : string;
+var applyStyle = (self, string) => {
+  if (self.level <= 0 || !string) {
+    return self[IS_EMPTY] ? "" : string;
   }
-  let styler = self2[STYLER];
+  let styler = self[STYLER];
   if (styler === void 0) {
     return string;
   }
@@ -70191,7 +70289,7 @@ import process5 from "node:process";
 import process4 from "node:process";
 
 // ../../node_modules/mimic-function/index.js
-var copyProperty = (to, from2, property, ignoreNonConfigurable) => {
+var copyProperty = (to, from, property, ignoreNonConfigurable) => {
   if (property === "length" || property === "prototype") {
     return;
   }
@@ -70199,7 +70297,7 @@ var copyProperty = (to, from2, property, ignoreNonConfigurable) => {
     return;
   }
   const toDescriptor = Object.getOwnPropertyDescriptor(to, property);
-  const fromDescriptor = Object.getOwnPropertyDescriptor(from2, property);
+  const fromDescriptor = Object.getOwnPropertyDescriptor(from, property);
   if (!canCopyProperty(toDescriptor, fromDescriptor) && ignoreNonConfigurable) {
     return;
   }
@@ -70208,8 +70306,8 @@ var copyProperty = (to, from2, property, ignoreNonConfigurable) => {
 var canCopyProperty = function(toDescriptor, fromDescriptor) {
   return toDescriptor === void 0 || toDescriptor.configurable || toDescriptor.writable === fromDescriptor.writable && toDescriptor.enumerable === fromDescriptor.enumerable && toDescriptor.configurable === fromDescriptor.configurable && (toDescriptor.writable || toDescriptor.value === fromDescriptor.value);
 };
-var changePrototype = (to, from2) => {
-  const fromPrototype = Object.getPrototypeOf(from2);
+var changePrototype = (to, from) => {
+  const fromPrototype = Object.getPrototypeOf(from);
   if (fromPrototype === Object.getPrototypeOf(to)) {
     return;
   }
@@ -70219,20 +70317,20 @@ var wrappedToString = (withName, fromBody) => `/* Wrapped ${withName}*/
 ${fromBody}`;
 var toStringDescriptor = Object.getOwnPropertyDescriptor(Function.prototype, "toString");
 var toStringName = Object.getOwnPropertyDescriptor(Function.prototype.toString, "name");
-var changeToString = (to, from2, name) => {
+var changeToString = (to, from, name) => {
   const withName = name === "" ? "" : `with ${name.trim()}() `;
-  const newToString = wrappedToString.bind(null, withName, from2.toString());
+  const newToString = wrappedToString.bind(null, withName, from.toString());
   Object.defineProperty(newToString, "name", toStringName);
   const { writable, enumerable, configurable } = toStringDescriptor;
   Object.defineProperty(to, "toString", { value: newToString, writable, enumerable, configurable });
 };
-function mimicFunction(to, from2, { ignoreNonConfigurable = false } = {}) {
+function mimicFunction(to, from, { ignoreNonConfigurable = false } = {}) {
   const { name } = to;
-  for (const property of Reflect.ownKeys(from2)) {
-    copyProperty(to, from2, property, ignoreNonConfigurable);
+  for (const property of Reflect.ownKeys(from)) {
+    copyProperty(to, from, property, ignoreNonConfigurable);
   }
-  changePrototype(to, from2);
-  changeToString(to, from2, name);
+  changePrototype(to, from);
+  changeToString(to, from, name);
   return to;
 }
 
@@ -70292,9 +70390,9 @@ if (process.platform === "linux") {
 }
 
 // ../../node_modules/signal-exit/dist/mjs/index.js
-var processOk = (process10) => !!process10 && typeof process10 === "object" && typeof process10.removeListener === "function" && typeof process10.emit === "function" && typeof process10.reallyExit === "function" && typeof process10.listeners === "function" && typeof process10.kill === "function" && typeof process10.pid === "number" && typeof process10.on === "function";
+var processOk = (process9) => !!process9 && typeof process9 === "object" && typeof process9.removeListener === "function" && typeof process9.emit === "function" && typeof process9.reallyExit === "function" && typeof process9.listeners === "function" && typeof process9.kill === "function" && typeof process9.pid === "number" && typeof process9.on === "function";
 var kExitEmitter = Symbol.for("signal-exit emitter");
-var global2 = globalThis;
+var global = globalThis;
 var ObjectDefineProperty = Object.defineProperty.bind(Object);
 var Emitter = class {
   emitted = {
@@ -70308,10 +70406,10 @@ var Emitter = class {
   count = 0;
   id = Math.random();
   constructor() {
-    if (global2[kExitEmitter]) {
-      return global2[kExitEmitter];
+    if (global[kExitEmitter]) {
+      return global[kExitEmitter];
     }
-    ObjectDefineProperty(global2, kExitEmitter, {
+    ObjectDefineProperty(global, kExitEmitter, {
       value: this,
       writable: false,
       enumerable: false,
@@ -70385,15 +70483,15 @@ var SignalExit = class extends SignalExitBase {
   #originalProcessReallyExit;
   #sigListeners = {};
   #loaded = false;
-  constructor(process10) {
+  constructor(process9) {
     super();
-    this.#process = process10;
+    this.#process = process9;
     this.#sigListeners = {};
     for (const sig of signals) {
       this.#sigListeners[sig] = () => {
         const listeners = this.#process.listeners(sig);
         let { count } = this.#emitter;
-        const p = process10;
+        const p = process9;
         if (typeof p.__signal_exit_emitter__ === "object" && typeof p.__signal_exit_emitter__.count === "number") {
           count += p.__signal_exit_emitter__.count;
         }
@@ -70402,12 +70500,12 @@ var SignalExit = class extends SignalExitBase {
           const ret = this.#emitter.emit("exit", null, sig);
           const s = sig === "SIGHUP" ? this.#hupSig : sig;
           if (!ret)
-            process10.kill(process10.pid, s);
+            process9.kill(process9.pid, s);
         }
       };
     }
-    this.#originalProcessReallyExit = process10.reallyExit;
-    this.#originalProcessEmit = process10.emit;
+    this.#originalProcessReallyExit = process9.reallyExit;
+    this.#originalProcessEmit = process9.emit;
   }
   onExit(cb, opts) {
     if (!processOk(this.#process)) {
@@ -70437,11 +70535,11 @@ var SignalExit = class extends SignalExitBase {
         const fn = this.#sigListeners[sig];
         if (fn)
           this.#process.on(sig, fn);
-      } catch (_2) {
+      } catch (_) {
       }
     }
-    this.#process.emit = (ev, ...a2) => {
-      return this.#processEmit(ev, ...a2);
+    this.#process.emit = (ev, ...a) => {
+      return this.#processEmit(ev, ...a);
     };
     this.#process.reallyExit = (code) => {
       return this.#processReallyExit(code);
@@ -70459,7 +70557,7 @@ var SignalExit = class extends SignalExitBase {
       }
       try {
         this.#process.removeListener(sig, listener);
-      } catch (_2) {
+      } catch (_) {
       }
     });
     this.#process.emit = this.#originalProcessEmit;
@@ -72275,12 +72373,12 @@ import tty2 from "node:tty";
 var hasColors = tty2?.WriteStream?.prototype?.hasColors?.() ?? false;
 var format = (open2, close) => {
   if (!hasColors) {
-    return (input3) => input3;
+    return (input2) => input2;
   }
   const openCode = `\x1B[${open2}m`;
   const closeCode = `\x1B[${close}m`;
-  return (input3) => {
-    const string = input3 + "";
+  return (input2) => {
+    const string = input2 + "";
     let index = string.indexOf(closeCode);
     if (index === -1) {
       return openCode + string + closeCode;
@@ -72343,12 +72441,12 @@ var bgWhiteBright = format(107, 49);
 // ../../node_modules/is-unicode-supported/index.js
 import process6 from "node:process";
 function isUnicodeSupported() {
-  const { env: env3 } = process6;
-  const { TERM, TERM_PROGRAM } = env3;
+  const { env: env2 } = process6;
+  const { TERM, TERM_PROGRAM } = env2;
   if (process6.platform !== "win32") {
     return TERM !== "linux";
   }
-  return Boolean(env3.WT_SESSION) || Boolean(env3.TERMINUS_SUBLIME) || env3.ConEmuTask === "{cmd::Cmder}" || TERM_PROGRAM === "Terminus-Sublime" || TERM_PROGRAM === "vscode" || TERM === "xterm-256color" || TERM === "alacritty" || TERM === "rxvt-unicode" || TERM === "rxvt-unicode-256color" || env3.TERMINAL_EMULATOR === "JetBrains-JediTerm";
+  return Boolean(env2.WT_SESSION) || Boolean(env2.TERMINUS_SUBLIME) || env2.ConEmuTask === "{cmd::Cmder}" || TERM_PROGRAM === "Terminus-Sublime" || TERM_PROGRAM === "vscode" || TERM === "xterm-256color" || TERM === "alacritty" || TERM === "rxvt-unicode" || TERM === "rxvt-unicode-256color" || env2.TERMINAL_EMULATOR === "JetBrains-JediTerm";
 }
 
 // ../../node_modules/log-symbols/symbols.js
@@ -72535,10 +72633,10 @@ function hangulClusterWidth(visibleSegment, eastAsianWidthOptions) {
 }
 function trailingHalfwidthWidth(visibleSegment, eastAsianWidthOptions) {
   let extra = 0;
-  let first2 = true;
+  let first = true;
   for (const character of visibleSegment) {
-    if (first2) {
-      first2 = false;
+    if (first) {
+      first = false;
       continue;
     }
     if (character >= "\uFF00" && character <= "\uFFEF") {
@@ -72547,15 +72645,15 @@ function trailingHalfwidthWidth(visibleSegment, eastAsianWidthOptions) {
   }
   return extra;
 }
-function stringWidth(input3, options = {}) {
-  if (typeof input3 !== "string" || input3.length === 0) {
+function stringWidth(input2, options = {}) {
+  if (typeof input2 !== "string" || input2.length === 0) {
     return 0;
   }
   const {
     ambiguousIsNarrow = true,
     countAnsiEscapeCodes = false
   } = options;
-  let string = input3;
+  let string = input2;
   if (!countAnsiEscapeCodes && (string.includes("\x1B") || string.includes("\x9B"))) {
     string = stripAnsi(string);
   }
@@ -73128,11 +73226,17 @@ var import_open = __toESM(require_open(), 1);
 var import_qrcode_terminal = __toESM(require_main(), 1);
 
 // src/agent.ts
-var import_ws2 = __toESM(require_ws(), 1);
+var import_ws = __toESM(require_ws(), 1);
 var import_chalk2 = __toESM(require_source(), 1);
+<<<<<<< HEAD
 import fs8 from "node:fs";
 import http2 from "node:http";
 import { EventEmitter as EventEmitter4 } from "node:events";
+=======
+import fs from "node:fs";
+import http from "node:http";
+import { EventEmitter } from "node:events";
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
 
 // src/deviceId.ts
 import { execSync } from "node:child_process";
@@ -73166,12 +73270,21 @@ function readWindows() {
 }
 function getMachineId() {
   try {
+<<<<<<< HEAD
     const os13 = platform();
     if (os13 === "darwin")
       return readMacOs();
     if (os13 === "linux")
       return readLinux();
     if (os13 === "win32")
+=======
+    const os4 = platform();
+    if (os4 === "darwin")
+      return readMacOs();
+    if (os4 === "linux")
+      return readLinux();
+    if (os4 === "win32")
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
       return readWindows();
   } catch {
   }
@@ -73272,12 +73385,12 @@ var ReconnectionManager = class {
     }
     const delay = this.getDelay();
     onWaiting?.(delay, this.attempts, this.maxAttempts);
-    await new Promise((resolve6) => setTimeout(resolve6, delay));
+    await new Promise((resolve) => setTimeout(resolve, delay));
     this.attempts++;
     connectFn();
   }
 };
-var Agent = class extends EventEmitter4 {
+var Agent = class extends EventEmitter {
   constructor(port, options) {
     super();
     this.port = port;
@@ -73318,7 +73431,7 @@ var Agent = class extends EventEmitter4 {
   _openSocket() {
     const { relay, name, desc, password, jwtToken } = this.options;
     const url = `${relay}/agent?token=${this.token}`;
-    const ws = new import_ws2.default(url);
+    const ws = new import_ws.default(url);
     this.ws = ws;
     ws.on("open", () => {
       this.reconnectionManager.reset();
@@ -73364,7 +73477,7 @@ var Agent = class extends EventEmitter4 {
   _startPing(ws) {
     this._stopPing();
     this.pingTimer = setInterval(() => {
-      if (ws.readyState !== import_ws2.default.OPEN)
+      if (ws.readyState !== import_ws.default.OPEN)
         return;
       this.pingTimestamp = Date.now();
       ws.send(JSON.stringify({ type: "ping" }));
@@ -73410,7 +73523,11 @@ var Agent = class extends EventEmitter4 {
     }
     if (msg.type === "ws-message") {
       const localWs = this.wsConnections.get(msg.wsId);
+<<<<<<< HEAD
       if (localWs?.readyState === import_ws2.default.OPEN) {
+=======
+      if (localWs?.readyState === import_ws.default.OPEN) {
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
         const payload = msg.binary ? Buffer.from(msg.data, "base64") : msg.data;
         localWs.send(payload);
       }
@@ -73428,6 +73545,7 @@ var Agent = class extends EventEmitter4 {
       return;
     }
     if (msg.type === "error") {
+<<<<<<< HEAD
       this.emit("relay-error", { code: msg.code, message: msg.message });
       if (msg.code === "DEVICE_QUOTA_EXCEEDED") {
         if (!this.options.json) {
@@ -73440,19 +73558,29 @@ var Agent = class extends EventEmitter4 {
       }
       if (!this.options.json) {
         console.error(import_chalk2.default.red(`
+=======
+      if (msg.code === "DEVICE_QUOTA_EXCEEDED") {
+        console.error(
+          import_chalk2.default.red("\n  \u2716  Free plan limit reached for this device.\n") + import_chalk2.default.yellow("     " + msg.message) + "\n"
+        );
+        this.closing = true;
+        process.exit(1);
+      }
+      console.error(import_chalk2.default.red(`
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
   Relay error [${msg.code}]: ${msg.message}`));
       }
       return;
     }
   }
   _forwardRequest(msg) {
-    const { requestId, method, path: path15, headers, body } = msg;
+    const { requestId, method, path: path3, headers, body } = msg;
     const reqBody = body ? Buffer.from(body, "base64") : void 0;
     const options = {
       hostname: "localhost",
       port: this.port,
       method,
-      path: path15,
+      path: path3,
       headers: {
         ...headers,
         host: `localhost:${this.port}`,
@@ -73467,20 +73595,20 @@ var Agent = class extends EventEmitter4 {
         headers: respHeaders,
         body: respBody.toString("base64")
       };
-      if (this.ws?.readyState === import_ws2.default.OPEN) {
+      if (this.ws?.readyState === import_ws.default.OPEN) {
         this.ws.send(JSON.stringify(outMsg));
       }
     };
-    const req = http2.request(options, (res) => {
+    const req = http.request(options, (res) => {
       const chunks = [];
       res.on("data", (chunk) => chunks.push(chunk));
       res.on("end", () => {
         const respHeaders = {};
-        for (const [k, v2] of Object.entries(res.headers)) {
-          if (typeof v2 === "string")
-            respHeaders[k] = v2;
-          else if (Array.isArray(v2))
-            respHeaders[k] = v2.join(", ");
+        for (const [k, v] of Object.entries(res.headers)) {
+          if (typeof v === "string")
+            respHeaders[k] = v;
+          else if (Array.isArray(v))
+            respHeaders[k] = v.join(", ");
         }
         respond(res.statusCode ?? 500, respHeaders, Buffer.concat(chunks));
       });
@@ -73500,11 +73628,19 @@ var Agent = class extends EventEmitter4 {
     req.end();
   }
   // ── Local WebSocket proxy ─────────────────────────────────────────────────
+<<<<<<< HEAD
   _openLocalWs(wsId, path15) {
     const url = `ws://localhost:${this.port}${path15}`;
     let localWs;
     try {
       localWs = new import_ws2.default(url);
+=======
+  _openLocalWs(wsId, path3) {
+    const url = `ws://localhost:${this.port}${path3}`;
+    let localWs;
+    try {
+      localWs = new import_ws.default(url);
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
     } catch (err) {
       this.ws?.send(JSON.stringify({
         type: "ws-error",
@@ -73517,7 +73653,11 @@ var Agent = class extends EventEmitter4 {
       this.wsConnections.set(wsId, localWs);
     });
     localWs.on("message", (data, isBinary) => {
+<<<<<<< HEAD
       if (this.ws?.readyState !== import_ws2.default.OPEN)
+=======
+      if (this.ws?.readyState !== import_ws.default.OPEN)
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
         return;
       this.ws.send(JSON.stringify({
         type: "ws-message",
@@ -73528,7 +73668,11 @@ var Agent = class extends EventEmitter4 {
     });
     localWs.on("close", (code, reason) => {
       this.wsConnections.delete(wsId);
+<<<<<<< HEAD
       if (this.ws?.readyState === import_ws2.default.OPEN) {
+=======
+      if (this.ws?.readyState === import_ws.default.OPEN) {
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
         this.ws.send(JSON.stringify({
           type: "ws-close",
           wsId,
@@ -73539,7 +73683,11 @@ var Agent = class extends EventEmitter4 {
     });
     localWs.on("error", (err) => {
       this.wsConnections.delete(wsId);
+<<<<<<< HEAD
       if (this.ws?.readyState === import_ws2.default.OPEN) {
+=======
+      if (this.ws?.readyState === import_ws.default.OPEN) {
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
         this.ws.send(JSON.stringify({
           type: "ws-error",
           wsId,
@@ -73580,7 +73728,7 @@ var Agent = class extends EventEmitter4 {
     ];
     for (const p of candidates) {
       try {
-        fs8.accessSync(p, fs8.constants.X_OK);
+        fs.accessSync(p, fs.constants.X_OK);
         return p;
       } catch {
       }
@@ -73596,26 +73744,32 @@ var Agent = class extends EventEmitter4 {
     await new Promise((r) => setTimeout(r, 2e3));
     if (this.closing)
       return;
+<<<<<<< HEAD
     const executablePath2 = process.env["PUPPETEER_EXECUTABLE_PATH"] ?? this._findChrome() ?? void 0;
     if (!executablePath2) {
       this._statusLog(
+=======
+    const executablePath = process.env["PUPPETEER_EXECUTABLE_PATH"] ?? this._findChrome() ?? void 0;
+    if (!executablePath) {
+      console.log(
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
         import_chalk2.default.dim(
           "  Screenshot skipped \u2014 no Chrome found. Set PUPPETEER_EXECUTABLE_PATH to enable."
         )
       );
       return;
     }
-    let puppeteer2;
+    let puppeteer;
     try {
-      puppeteer2 = await Promise.resolve().then(() => (init_puppeteer_core(), puppeteer_core_exports));
+      puppeteer = await import("puppeteer-core");
     } catch {
       this._statusLog(import_chalk2.default.dim("  Screenshot skipped \u2014 puppeteer-core not available."));
       return;
     }
     let browser = null;
     try {
-      browser = await puppeteer2.launch({
-        executablePath: executablePath2,
+      browser = await puppeteer.launch({
+        executablePath,
         headless: true,
         args: [
           "--no-sandbox",
@@ -73657,11 +73811,19 @@ var Agent = class extends EventEmitter4 {
 };
 
 // src/config.ts
+<<<<<<< HEAD
 import fs9 from "node:fs";
 import path13 from "node:path";
 import os11 from "node:os";
 var CONFIG_DIR2 = path13.join(os11.homedir(), ".portlens");
 var CONFIG_FILE = path13.join(CONFIG_DIR2, "config.json");
+=======
+import fs2 from "node:fs";
+import path from "node:path";
+import os2 from "node:os";
+var CONFIG_DIR2 = path.join(os2.homedir(), ".portlens");
+var CONFIG_FILE = path.join(CONFIG_DIR2, "config.json");
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
 var DEFAULTS = {
   relay: "wss://relay.portlens.net",
   defaultName: "My App",
@@ -73669,46 +73831,52 @@ var DEFAULTS = {
 };
 function readConfig() {
   try {
-    const raw = fs9.readFileSync(CONFIG_FILE, "utf8");
+    const raw = fs2.readFileSync(CONFIG_FILE, "utf8");
     return { ...DEFAULTS, ...JSON.parse(raw) };
   } catch {
     writeConfig(DEFAULTS);
     return { ...DEFAULTS };
   }
 }
+<<<<<<< HEAD
 function writeConfig(config2) {
   fs9.mkdirSync(CONFIG_DIR2, { recursive: true });
   fs9.writeFileSync(CONFIG_FILE, JSON.stringify(config2, null, 2) + "\n", "utf8");
+=======
+function writeConfig(config) {
+  fs2.mkdirSync(CONFIG_DIR2, { recursive: true });
+  fs2.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2) + "\n", "utf8");
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
 }
 function configFilePath() {
   return CONFIG_FILE;
 }
 
 // src/authStore.ts
-import fs10 from "node:fs";
-import path14 from "node:path";
-import os12 from "node:os";
-var AUTH_DIR = path14.join(os12.homedir(), ".portlens");
-var AUTH_FILE = path14.join(AUTH_DIR, "auth.json");
+import fs3 from "node:fs";
+import path2 from "node:path";
+import os3 from "node:os";
+var AUTH_DIR = path2.join(os3.homedir(), ".portlens");
+var AUTH_FILE = path2.join(AUTH_DIR, "auth.json");
 function readAuth() {
   try {
-    const raw = fs10.readFileSync(AUTH_FILE, "utf8");
+    const raw = fs3.readFileSync(AUTH_FILE, "utf8");
     return JSON.parse(raw);
   } catch {
     return null;
   }
 }
 function writeAuth(data) {
-  fs10.mkdirSync(AUTH_DIR, { recursive: true });
-  fs10.writeFileSync(AUTH_FILE, JSON.stringify(data, null, 2) + "\n", "utf8");
+  fs3.mkdirSync(AUTH_DIR, { recursive: true });
+  fs3.writeFileSync(AUTH_FILE, JSON.stringify(data, null, 2) + "\n", "utf8");
   try {
-    fs10.chmodSync(AUTH_FILE, 384);
+    fs3.chmodSync(AUTH_FILE, 384);
   } catch {
   }
 }
 function deleteAuth() {
   try {
-    fs10.unlinkSync(AUTH_FILE);
+    fs3.unlinkSync(AUTH_FILE);
   } catch {
   }
 }
@@ -73920,7 +74088,7 @@ program.name("portlens").description("Share your local server with anyone, insta
 program.command("login").description("Log in to PortLens with a magic link").action(async () => {
   const cfg = readConfig();
   const base = wsToHttp(cfg.relay);
-  const rl = createInterface2({ input: input2, output: output2 });
+  const rl = createInterface({ input, output });
   try {
     const email = (await rl.question(import_chalk4.default.cyan("  Email: "))).trim();
     if (!email) {
@@ -74080,16 +74248,16 @@ program.command("config").description("Open ~/.portlens/config.json in your $EDI
   const editor = process.env["EDITOR"] ?? "nano";
   const file = configFilePath();
   console.log(import_chalk4.default.dim(`  Opening ${file} in ${editor}\u2026`));
-  const result = spawnSync4(editor, [file], { stdio: "inherit" });
+  const result = spawnSync(editor, [file], { stdio: "inherit" });
   if (result.error) {
     console.error(import_chalk4.default.red(`  Could not open editor: ${result.error.message}`));
     process.exit(1);
   }
 });
-program.argument("<port>", "Local port to tunnel", (v2) => {
-  const n = parseInt(v2, 10);
+program.argument("<port>", "Local port to tunnel", (v) => {
+  const n = parseInt(v, 10);
   if (isNaN(n) || n < 1 || n > 65535) {
-    console.error(import_chalk4.default.red(`  Invalid port: ${v2}`));
+    console.error(import_chalk4.default.red(`  Invalid port: ${v}`));
     process.exit(1);
   }
   return n;
@@ -74126,6 +74294,10 @@ program.argument("<port>", "Local port to tunnel", (v2) => {
   let reconnectInfo;
   let boxVisible = false;
   let refreshTimer = null;
+<<<<<<< HEAD
+=======
+  let shareUrl = `${VIEWER_BASE}/v/${agent.token}`;
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
   function boxOpts() {
     return { shareUrl, localPort: port, expiresAt, status: currentStatus, rtt: currentRtt, reconnectInfo };
   }
@@ -74226,1107 +74398,3 @@ program.argument("<port>", "Local port to tunnel", (v2) => {
   agent.connect();
 });
 program.parse();
-/*! Bundled license information:
-
-puppeteer-core/lib/puppeteer/util/disposable.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/environment.js:
-  (**
-   * @license
-   * Copyright 2020 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/util/assert.js:
-  (**
-   * @license
-   * Copyright 2020 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/util/encoding.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/util/version.js:
-  (**
-   * @license
-   * Copyright 2025 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/Debug.js:
-  (**
-   * @license
-   * Copyright 2020 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/Errors.js:
-  (**
-   * @license
-   * Copyright 2018 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/PDFOptions.js:
-  (**
-   * @license
-   * Copyright 2020 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/util.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/EventEmitter.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/util/Deferred.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/util/Mutex.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/api/BrowserContext.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/api/DeviceRequestPrompt.js:
-  (**
-   * @license
-   * Copyright 2025 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/api/Dialog.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/api/ElementHandleSymbol.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/util/ErrorLike.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/util/Function.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/HandleIterator.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/LazyArg.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/QueryHandler.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/AriaQueryHandler.js:
-  (**
-   * @license
-   * Copyright 2020 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/CSSQueryHandler.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/ScriptInjector.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/CustomQueryHandler.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/PierceQueryHandler.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/PQueryHandler.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/PSelectorParser.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/TextQueryHandler.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/XPathQueryHandler.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/GetQueryHandler.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/util/decorators.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/api/JSHandle.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/api/ElementHandle.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/api/Extension.js:
-  (**
-   * @license
-   * Copyright 2026 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/api/Frame.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/api/HTTPResponse.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/util/incremental-id-generator.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/api/Input.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/TimeoutSettings.js:
-  (**
-   * @license
-   * Copyright 2019 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/api/Page.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/WaitTask.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/api/Realm.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/api/Target.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/api/WebWorker.js:
-  (**
-   * @license
-   * Copyright 2018 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/api/api.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/Accessibility.js:
-  (**
-   * @license
-   * Copyright 2018 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/Binding.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/ConsoleMessage.js:
-  (**
-   * @license
-   * Copyright 2020 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/FileChooser.js:
-  (**
-   * @license
-   * Copyright 2020 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/NetworkManagerEvents.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/CallbackRegistry.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/CdpSession.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/Connection.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/Coverage.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/Dialog.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/CdpIssue.js:
-  (**
-   * @license
-   * Copyright 2026 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/CdpPreloadScript.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/DeviceRequestPrompt.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/utils.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/JSHandle.js:
-  (**
-   * @license
-   * Copyright 2019 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/ElementHandle.js:
-  (**
-   * @license
-   * Copyright 2019 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/ExecutionContext.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/FrameManagerEvents.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/IsolatedWorlds.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/IsolatedWorld.js:
-  (**
-   * @license
-   * Copyright 2019 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/LifecycleWatcher.js:
-  (**
-   * @license
-   * Copyright 2019 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/Frame.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/FrameTree.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/SecurityDetails.js:
-  (**
-   * @license
-   * Copyright 2020 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/util/httpUtils.js:
-  (**
-   * @license
-   * Copyright 2025 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/NetworkEventManager.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/NetworkManager.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/FrameManager.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/USKeyboardLayout.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/Input.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/WebMCP.js:
-  (**
-   * @license
-   * Copyright 2026 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/Page.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/BrowserContext.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/Target.js:
-  (**
-   * @license
-   * Copyright 2019 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/TargetManager.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/Browser.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/BrowserConnector.js:
-  (**
-   * @license
-   * Copyright 2020 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/PredefinedNetworkConditions.js:
-  (**
-   * @license
-   * Copyright 2021 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/TargetManageEvents.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/cdp/cdp.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/Device.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/Connection.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/BidiOverCdp.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/BluetoothEmulation.js:
-  (**
-   * @license
-   * Copyright 2025 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/DeviceRequestPrompt.js:
-  (**
-   * @license
-   * Copyright 2025 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/core/Navigation.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/core/Realm.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/core/Request.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/core/UserPrompt.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/core/BrowsingContext.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/core/UserContext.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/Deserializer.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/JSHandle.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/ElementHandle.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/Dialog.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/ExposedFunction.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/Serializer.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/util.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/WebWorker.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/Frame.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/Input.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/Page.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/Target.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/BrowserContext.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/core/Browser.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/core/Session.js:
-  (**
-   * @license
-   * Copyright 2024 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/Browser.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/bidi.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/bidi/BrowserConnector.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/node/NodeWebSocketTransport.js:
-  (**
-   * @license
-   * Copyright 2018 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@puppeteer/browsers/lib/browser-data/types.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@puppeteer/browsers/lib/httpUtil.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@puppeteer/browsers/lib/browser-data/chrome.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@puppeteer/browsers/lib/browser-data/chrome-headless-shell.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@puppeteer/browsers/lib/browser-data/chromedriver.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@puppeteer/browsers/lib/browser-data/chromium.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@puppeteer/browsers/lib/browser-data/firefox.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@puppeteer/browsers/lib/browser-data/browser-data.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@puppeteer/browsers/lib/debug.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@puppeteer/browsers/lib/detectPlatform.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@puppeteer/browsers/lib/Cache.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@puppeteer/browsers/lib/launch.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@puppeteer/browsers/lib/DefaultProvider.js:
-  (**
-   * @license
-   * Copyright 2026 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@puppeteer/browsers/lib/fileUtil.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-progress/lib/node-progress.js:
-  (*!
-   * node-progress
-   * Copyright(c) 2011 TJ Holowaychuk <tj@vision-media.ca>
-   * MIT Licensed
-   *)
-
-@puppeteer/browsers/lib/install.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-yargs-parser/build/lib/string-utils.js:
-  (**
-   * @license
-   * Copyright (c) 2016, Contributors
-   * SPDX-License-Identifier: ISC
-   *)
-
-yargs-parser/build/lib/tokenize-arg-string.js:
-  (**
-   * @license
-   * Copyright (c) 2016, Contributors
-   * SPDX-License-Identifier: ISC
-   *)
-
-yargs-parser/build/lib/yargs-parser-types.js:
-  (**
-   * @license
-   * Copyright (c) 2016, Contributors
-   * SPDX-License-Identifier: ISC
-   *)
-
-yargs-parser/build/lib/yargs-parser.js:
-  (**
-   * @license
-   * Copyright (c) 2016, Contributors
-   * SPDX-License-Identifier: ISC
-   *)
-
-yargs-parser/build/lib/index.js:
-  (**
-   * @fileoverview Main entrypoint for libraries using yargs-parser in Node.js
-   * CJS and ESM environments.
-   *
-   * @license
-   * Copyright (c) 2016, Contributors
-   * SPDX-License-Identifier: ISC
-   *)
-
-@puppeteer/browsers/lib/CLI.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@puppeteer/browsers/lib/provider.js:
-  (**
-   * @license
-   * Copyright 2026 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@puppeteer/browsers/lib/main.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/node/LaunchOptions.js:
-  (**
-   * @license
-   * Copyright 2020 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/BrowserConnector.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/Puppeteer.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/TaskQueue.js:
-  (**
-   * @license
-   * Copyright 2020 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/common/common.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/revisions.js:
-  (**
-   * @license
-   * Copyright 2020 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/util/util.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/index-browser.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/node/BrowserLauncher.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/node/util/fs.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/node/ChromeLauncher.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/node/FirefoxLauncher.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/node/PuppeteerNode.js:
-  (**
-   * @license
-   * Copyright 2020 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/node/ScreenRecorder.js:
-  (**
-   * @license
-   * Copyright 2023 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/node/node.js:
-  (**
-   * @license
-   * Copyright 2022 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/index.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-puppeteer-core/lib/puppeteer/puppeteer-core.js:
-  (**
-   * @license
-   * Copyright 2017 Google Inc.
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-*/

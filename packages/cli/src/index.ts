@@ -421,6 +421,7 @@ program
   .option("--no-open", "Don't auto-open the viewer URL in the browser")
   .option("--no-screenshot", "Skip automatic screenshot capture")
   .option("--qr", "Print the share URL as a QR code")
+<<<<<<< HEAD
   .option("--json", "Emit machine-readable NDJSON events instead of the formatted box")
   .action(async (port: number, opts) => {
     const json = Boolean(opts.json);
@@ -429,14 +430,24 @@ program
     await ensurePrivacyConsent(json);
 
     const cfg = readConfig();
+=======
+  .action((port: number, opts) => {
+    const cfg  = readConfig();
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
     const auth = readAuth();
 
     // ── Relay URL normalisation & validation ──────────────────────────────
     // Accept bare hostnames/domains (e.g. "pankaj.portlens.net") by
     // auto-prepending wss://.  Reject anything that still doesn't parse.
+<<<<<<< HEAD
     const relay = normaliseRelay((opts.relay as string | undefined) ?? cfg.relay);
     const name = (opts.name as string | undefined) ?? cfg.defaultName;
     const desc = (opts.desc as string | undefined) ?? cfg.defaultDesc;
+=======
+    const relay    = normaliseRelay((opts.relay as string | undefined) ?? cfg.relay);
+    const name     = (opts.name  as string | undefined) ?? cfg.defaultName;
+    const desc     = (opts.desc  as string | undefined) ?? cfg.defaultDesc;
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
     const jwtToken = auth?.token;
 
     if (auth && !json) {
@@ -470,6 +481,10 @@ program
     let reconnectInfo: ReconnectInfo | undefined;
     let boxVisible = false;
     let refreshTimer: NodeJS.Timeout | null = null;
+<<<<<<< HEAD
+=======
+    let shareUrl      = `${VIEWER_BASE}/v/${agent.token}`;
+>>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
 
     /** Render a fresh box snapshot using the latest state variables. */
     function boxOpts() {
