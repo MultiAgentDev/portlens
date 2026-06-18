@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { spawnSync } from "node:child_process";
 import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
@@ -8,11 +9,10 @@ import { Command } from "commander";
 import ora from "ora";
 import chalk from "chalk";
 import open from "open";
-import qrcode from "qrcode-terminal";
 import { Agent } from "./agent.js";
 import { readConfig, configFilePath } from "./config.js";
 import { readAuth, writeAuth, deleteAuth } from "./authStore.js";
-import { printBox, updateBox } from "./display.js";
+import { printBox, updateBox, printQr } from "./display.js";
 import type { TunnelStatus, ReconnectInfo } from "./display.js";
 
 // ── Structured (--json) output ────────────────────────────────────────────────
@@ -30,11 +30,11 @@ function emitJson(event: string, data: Record<string, unknown> = {}): void {
 
 // ── Privacy Policy consent ────────────────────────────────────────────────────
 
-const CONFIG_DIR = join(homedir(), ".portlens");
-const CONSENT_FILE = join(CONFIG_DIR, "consent.json");
+const CONFIG_DIR    = join(homedir(), ".portlens");
+const CONSENT_FILE  = join(CONFIG_DIR, "consent.json");
 /** Bump this version string whenever the privacy policy changes materially. */
 const POLICY_VERSION = "1.0";
-const POLICY_URL = "https://portlens.net/privacy-policy.html";
+const POLICY_URL     = "https://portlens.net/privacy-policy.html";
 
 interface ConsentRecord {
   accepted: boolean;
@@ -160,6 +160,51 @@ function normaliseRelay(raw: string): string {
   return url;
 }
 
+interface LocalTarget {
+  host: string;
+  port: number;
+}
+
+/**
+ * Parse the positional tunnel target into { host, port }. Accepts a bare port
+ * (forwarded to localhost) or a `host:port` pair for binding to a custom host:
+ *
+ *   "3000"              → { host: "localhost",   port: 3000 }
+ *   "my-app.local:8080" → { host: "my-app.local", port: 8080 }
+ *   "127.0.0.1:5000"    → { host: "127.0.0.1",   port: 5000 }
+ *
+ * Exits with a clean message on anything invalid.
+ */
+function parseTarget(raw: string): LocalTarget {
+  const value = raw.trim();
+  let host = "localhost";
+  let portStr = value;
+
+  // Split on the LAST colon so hostnames are preserved; the remainder is the port.
+  const idx = value.lastIndexOf(":");
+  if (idx !== -1) {
+    host = value.slice(0, idx).trim();
+    portStr = value.slice(idx + 1).trim();
+    if (!host) {
+      console.error(chalk.red(`  Invalid target: "${raw}" — missing host before ":"`));
+      process.exit(1);
+    }
+  }
+
+  const port = Number.parseInt(portStr, 10);
+  if (!/^\d+$/.test(portStr) || isNaN(port) || port < 1 || port > 65535) {
+    console.error(
+      chalk.red(
+        `  Invalid target: "${raw}"\n` +
+        `  Expected a port or host:port, e.g. 3000 or my-app.local:8080`
+      )
+    );
+    process.exit(1);
+  }
+
+  return { host, port };
+}
+
 const program = new Command();
 program
   .name("portlens")
@@ -171,9 +216,9 @@ program
   .command("login")
   .description("Log in to PortLens with a magic link")
   .action(async () => {
-    const cfg = readConfig();
+    const cfg  = readConfig();
     const base = wsToHttp(cfg.relay);
-    const rl = createInterface({ input, output });
+    const rl   = createInterface({ input, output });
 
     try {
       const email = (await rl.question(chalk.cyan("  Email: "))).trim();
@@ -226,9 +271,9 @@ program
       writeAuth({
         token: data.token,
         user: {
-          id: data.user.id,
-          email: data.user.email,
-          plan: data.user.plan as "free" | "pro",
+          id:              data.user.id,
+          email:           data.user.email,
+          plan:            data.user.plan as "free" | "pro",
           customSubdomain: data.user.customSubdomain,
         },
       });
@@ -282,15 +327,15 @@ program
       process.exit(1);
     }
 
-    const cfg = readConfig();
+    const cfg  = readConfig();
     const base = wsToHttp(cfg.relay);
 
     const spinner = ora("Loading referral info…").start();
     let data: {
       user: {
-        referralCode: string | null;
+        referralCode:         string | null;
         referralBonusMinutes: number;
-        referralCount: number;
+        referralCount:        number;
       };
     };
 
@@ -322,10 +367,10 @@ program
       return;
     }
 
-    const link = `https://portlens.net/?ref=${referralCode}`;
-    const hours = Math.floor(referralBonusMinutes / 60);
-    const mins = referralBonusMinutes % 60;
-    const bonus = hours > 0 ? `${hours}h ${String(mins).padStart(2, "0")}m` : `${mins}m`;
+    const link   = `https://portlens.net/?ref=${referralCode}`;
+    const hours  = Math.floor(referralBonusMinutes / 60);
+    const mins   = referralBonusMinutes % 60;
+    const bonus  = hours > 0 ? `${hours}h ${String(mins).padStart(2, "0")}m` : `${mins}m`;
     const people = referralCount === 1 ? "person" : "people";
 
     console.log();
@@ -352,7 +397,7 @@ program
       process.exit(1);
     }
 
-    const cfg = readConfig();
+    const cfg  = readConfig();
     const base = wsToHttp(cfg.relay);
 
     const spinner = ora("Opening checkout…").start();
@@ -403,17 +448,14 @@ program
     }
   });
 
-// ── portlens <port> ──────────────────────────────────────────────────────────
+// ── portlens <target> ─────────────────────────────────────────────────────────
 
 program
-  .argument("<port>", "Local port to tunnel", (v) => {
-    const n = parseInt(v, 10);
-    if (isNaN(n) || n < 1 || n > 65535) {
-      console.error(chalk.red(`  Invalid port: ${v}`));
-      process.exit(1);
-    }
-    return n;
-  })
+  .argument(
+    "<target>",
+    "Local port or host:port to tunnel (e.g. 3000 or my-app.local:8080)",
+    parseTarget
+  )
   .option("--name <string>", "App name shown in the viewer")
   .option("--desc <string>", "One-line description")
   .option("--password <string>", "Protect the share link with a password")
@@ -421,33 +463,24 @@ program
   .option("--no-open", "Don't auto-open the viewer URL in the browser")
   .option("--no-screenshot", "Skip automatic screenshot capture")
   .option("--qr", "Print the share URL as a QR code")
-<<<<<<< HEAD
+  .option("--qr-invert", "Force-invert the QR colours (use on light terminals)")
   .option("--json", "Emit machine-readable NDJSON events instead of the formatted box")
-  .action(async (port: number, opts) => {
+  .action(async (target: LocalTarget, opts) => {
     const json = Boolean(opts.json);
+    const { host, port } = target;
 
     // ── Privacy Policy gate ───────────────────────────────────────────────
     await ensurePrivacyConsent(json);
 
-    const cfg = readConfig();
-=======
-  .action((port: number, opts) => {
     const cfg  = readConfig();
->>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
     const auth = readAuth();
 
     // ── Relay URL normalisation & validation ──────────────────────────────
     // Accept bare hostnames/domains (e.g. "pankaj.portlens.net") by
     // auto-prepending wss://.  Reject anything that still doesn't parse.
-<<<<<<< HEAD
-    const relay = normaliseRelay((opts.relay as string | undefined) ?? cfg.relay);
-    const name = (opts.name as string | undefined) ?? cfg.defaultName;
-    const desc = (opts.desc as string | undefined) ?? cfg.defaultDesc;
-=======
     const relay    = normaliseRelay((opts.relay as string | undefined) ?? cfg.relay);
     const name     = (opts.name  as string | undefined) ?? cfg.defaultName;
     const desc     = (opts.desc  as string | undefined) ?? cfg.defaultDesc;
->>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
     const jwtToken = auth?.token;
 
     if (auth && !json) {
@@ -457,9 +490,10 @@ program
     const agent = new Agent(port, {
       name,
       desc,
-      password: opts.password as string | undefined,
+      password:     opts.password as string | undefined,
       relay,
-      noOpen: opts.open === false,
+      host,
+      noOpen:       opts.open === false,
       jwtToken,
       noScreenshot: opts.screenshot === false,
       json,
@@ -468,27 +502,23 @@ program
     const shareUrl = `${VIEWER_BASE}/v/${agent.token}`;
 
     if (json) {
-      emitJson("connecting", { token: agent.token, localPort: port, relay, shareUrl });
+      emitJson("connecting", { token: agent.token, localHost: host, localPort: port, relay, shareUrl });
     }
 
     // In --json mode the formatted spinner/box are suppressed; the NDJSON
     // event stream is the only stdout output.
-    const spinner = json ? null : ora(`Connecting to relay (port ${port})…`).start();
+    const spinner = json ? null : ora(`Connecting to relay (${host}:${port})…`).start();
 
     let currentStatus: TunnelStatus = "connecting" as TunnelStatus;
     let expiresAt: string | null = null;
     let currentRtt: number | undefined;
     let reconnectInfo: ReconnectInfo | undefined;
-    let boxVisible = false;
+    let boxVisible    = false;
     let refreshTimer: NodeJS.Timeout | null = null;
-<<<<<<< HEAD
-=======
-    let shareUrl      = `${VIEWER_BASE}/v/${agent.token}`;
->>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
 
     /** Render a fresh box snapshot using the latest state variables. */
     function boxOpts() {
-      return { shareUrl, localPort: port, expiresAt, status: currentStatus, rtt: currentRtt, reconnectInfo };
+      return { shareUrl, appName: name, localHost: host, localPort: port, expiresAt, status: currentStatus, rtt: currentRtt, reconnectInfo };
     }
 
     function startRefresh() {
@@ -501,11 +531,11 @@ program
 
     // ── First connect ────────────────────────────────────────────────────────
     agent.once("connected", () => {
-      currentStatus = "connected";
-      reconnectInfo = undefined;
+      currentStatus  = "connected";
+      reconnectInfo  = undefined;
 
       if (json) {
-        emitJson("connected", { token: agent.token, localPort: port, shareUrl });
+        emitJson("connected", { token: agent.token, localHost: host, localPort: port, shareUrl });
         return;
       }
 
@@ -515,8 +545,7 @@ program
       startRefresh();
 
       if (opts.qr as boolean | undefined) {
-        console.log();
-        qrcode.generate(shareUrl, { small: true });
+        printQr(shareUrl, { invert: Boolean(opts.qrInvert) });
       }
 
       if (opts.open !== false) {
@@ -529,11 +558,12 @@ program
       expiresAt = info.expiresAt;
       if (json) {
         emitJson("ready", {
-          token: agent.token,
+          token:     agent.token,
+          localHost: host,
           localPort: port,
           shareUrl,
           expiresAt: info.expiresAt,
-          plan: info.plan,
+          plan:      info.plan,
         });
         return;
       }
@@ -544,7 +574,7 @@ program
     // Agent emits (delayMs, attempt, maxAttempts) from ReconnectionManager.
     agent.on("reconnecting", (delayMs: number, attempt: number, maxAttempts: number) => {
       currentStatus = "reconnecting";
-      currentRtt = undefined;  // RTT is stale while disconnected
+      currentRtt    = undefined;  // RTT is stale while disconnected
       reconnectInfo = { delayMs, attempt, maxAttempts };
       if (json) {
         emitJson("reconnecting", { delayMs, attempt, maxAttempts });
@@ -581,6 +611,20 @@ program
     // ── Relay-side error (json mode renders it; humans got the chalk version) ─
     agent.on("relay-error", (err: { code: string; message: string }) => {
       if (json) emitJson("error", { code: err.code, message: err.message });
+    });
+
+    // ── Terminal close (permanent rejection — reconnection abandoned) ─────────
+    agent.on("terminated", (code: number) => {
+      spinner?.stop();
+      if (refreshTimer) clearInterval(refreshTimer);
+      if (json) {
+        emitJson("closed", { token: agent.token, code });
+      } else {
+        console.error(
+          chalk.red(`\n  Connection closed by relay (code ${code}); not reconnecting.`)
+        );
+      }
+      process.exit(1);
     });
 
     process.on("SIGINT", () => {

@@ -28,10 +28,7 @@ function hashPassword(password: string): string {
 // packages/shared/src/protocol.ts.
 type TunnelMessage =
   | { type: "register"; token: string; userId?: string; appName?: string; appDesc?: string; passwordHash?: string; jwtToken?: string; deviceFingerprint?: string }
-<<<<<<< HEAD
   | { type: "tunnel-ready"; token: string; expiresAt: string | null; plan: "free" | "pro" }
-=======
->>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
   | { type: "request"; requestId: string; method: string; path: string; headers: Record<string, string>; body?: string }
   | { type: "response"; requestId: string; statusCode: number; headers: Record<string, string>; body: string }
   | { type: "error"; code: string; message: string }
@@ -46,6 +43,24 @@ type TunnelMessage =
 
 /** How often the agent sends its own health-check ping to the relay. */
 const PING_INTERVAL_MS = 30_000;
+
+// ── Terminal failure conditions ───────────────────────────────────────────────
+// On these, reconnecting would just be rejected again, so we stop instead of
+// burning through the exponential-backoff budget.
+
+/** WebSocket close codes the relay uses for permanent rejections. */
+const TERMINAL_CLOSE_CODES = new Set([
+  4001, // token already in use
+  4008, // concurrent tunnel limit reached
+  4009, // device free-quota exhausted
+]);
+
+/** `error` frame codes that should stop the agent rather than trigger a retry. */
+const TERMINAL_ERROR_CODES = new Set([
+  "TOKEN_IN_USE",
+  "TUNNEL_LIMIT_REACHED",
+  "DEVICE_QUOTA_EXCEEDED",
+]);
 
 // ── ReconnectionManager ───────────────────────────────────────────────────────
 
@@ -121,6 +136,11 @@ export interface AgentOptions {
   desc: string;
   password?: string;
   relay: string;
+  /**
+   * Local host to forward traffic to. Defaults to "localhost"; set to a custom
+   * hostname (e.g. "my-app.local") via the `host:port` CLI argument form.
+   */
+  host: string;
   noOpen: boolean;
   /** JWT from ~/.portlens/config.json — forwarded to relay for userId resolution */
   jwtToken?: string;
@@ -220,16 +240,26 @@ export class Agent extends EventEmitter {
 
     ws.on("message", (data) => this._handleMessage(data));
 
-    ws.on("close", () => {
+    ws.on("close", (code: number) => {
       this._stopPing();
-      if (!this.closing) {
-        void this.reconnectionManager.scheduleReconnect(
-          () => { if (!this.closing) this._openSocket(); },
-          (delayMs, attempt, maxAttempts) => {
-            this.emit("reconnecting", delayMs, attempt, maxAttempts);
-          }
-        );
+      if (this.closing) return;
+
+      // A permanent rejection (e.g. token-in-use, tunnel limit, quota): stop.
+      // Retrying with the same token would just be rejected again.
+      if (TERMINAL_CLOSE_CODES.has(code)) {
+        this.closing = true;
+        this.emit("terminated", code);
+        return;
       }
+
+      // Unexpected drop — preserve link state by reconnecting with the SAME
+      // token (same short URL) using exponential backoff with jitter.
+      void this.reconnectionManager.scheduleReconnect(
+        () => { if (!this.closing) this._openSocket(); },
+        (delayMs, attempt, maxAttempts) => {
+          this.emit("reconnecting", delayMs, attempt, maxAttempts);
+        }
+      );
     });
 
     ws.on("error", (err) => {
@@ -315,40 +345,32 @@ export class Agent extends EventEmitter {
     }
 
     if (msg.type === "error") {
-<<<<<<< HEAD
       // Surface as an event so `--json` callers can render it; humans get the
       // chalk-formatted version unless suppressed by json mode.
       this.emit("relay-error", { code: msg.code, message: msg.message });
 
-      if (msg.code === "DEVICE_QUOTA_EXCEEDED") {
-        if (!this.options.json) {
+      const terminal = TERMINAL_ERROR_CODES.has(msg.code);
+
+      if (!this.options.json) {
+        if (msg.code === "DEVICE_QUOTA_EXCEEDED") {
           console.error(
             chalk.red("\n  ✖  Free plan limit reached for this device.\n") +
             chalk.yellow("     " + msg.message) +
             "\n"
           );
+        } else if (terminal) {
+          console.error(chalk.red(`\n  ✖  ${msg.message}`) + "\n");
+        } else {
+          console.error(chalk.red(`\n  Relay error [${msg.code}]: ${msg.message}`));
         }
-        this.closing = true;
-        process.exit(1);
       }
 
-      if (!this.options.json) {
-        console.error(chalk.red(`\n  Relay error [${msg.code}]: ${msg.message}`));
-      }
-      return;
-=======
-      if (msg.code === "DEVICE_QUOTA_EXCEEDED") {
-        // Print a prominent, actionable message then exit cleanly.
-        console.error(
-          chalk.red("\n  ✖  Free plan limit reached for this device.\n") +
-          chalk.yellow("     " + msg.message) +
-          "\n"
-        );
+      // Terminal errors won't resolve on retry — close instead of reconnecting.
+      if (terminal) {
         this.closing = true;
         process.exit(1);
       }
-      console.error(chalk.red(`\n  Relay error [${msg.code}]: ${msg.message}`));
->>>>>>> c32f7c1c19b78db984acd3d101c92c4be390a814
+      return;
     }
   }
 
@@ -359,13 +381,13 @@ export class Agent extends EventEmitter {
     const reqBody = body ? Buffer.from(body, "base64") : undefined;
 
     const options: http.RequestOptions = {
-      hostname: "localhost",
+      hostname: this.options.host,
       port:     this.port,
       method,
       path,
       headers: {
         ...headers,
-        host: `localhost:${this.port}`,
+        host: `${this.options.host}:${this.port}`,
         ...(reqBody ? { "content-length": String(reqBody.length) } : {}),
       },
     };
@@ -418,7 +440,7 @@ export class Agent extends EventEmitter {
   // ── Local WebSocket proxy ─────────────────────────────────────────────────
 
   private _openLocalWs(wsId: string, path: string): void {
-    const url = `ws://localhost:${this.port}${path}`;
+    const url = `ws://${this.options.host}:${this.port}${path}`;
     let localWs: WebSocket;
     try {
       localWs = new WebSocket(url);
@@ -561,7 +583,7 @@ export class Agent extends EventEmitter {
       const page = await browser.newPage();
       await page.setViewport({ width: 1280, height: 800 });
 
-      await page.goto(`http://localhost:${this.port}`, {
+      await page.goto(`http://${this.options.host}:${this.port}`, {
         waitUntil: "load",
         timeout:   15_000,
       });

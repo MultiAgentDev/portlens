@@ -39,3 +39,7 @@ coverage/
 
 # TypeScript
 *.tsbuildinfo
+
+# npm credentials
+.npmrc
+
