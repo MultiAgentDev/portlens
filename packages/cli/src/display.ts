@@ -171,50 +171,35 @@ export function updateBox(opts: BoxOptions): void {
 
 // ── QR rendering ────────────────────────────────────────────────────────────
 
+// ANSI background codes used by qrcode-terminal's full-size renderer.
+const QR_BG_LIGHT = "\x1b[47m"; // white background → light module
+const QR_BG_DARK  = "\x1b[40m"; // black background → dark module
+
 /**
- * Heuristically decide whether the terminal has a dark background.
- *
- * Many terminals export `COLORFGBG` as "fg;bg" (e.g. "15;0" = light-on-dark).
- * ANSI background codes 0–6 and 8 are dark; 7 and 9–15 are light. When the
- * variable is absent we assume dark, the common default for dev terminals.
+ * Swap the black/white background cells, for the rare terminal whose colour
+ * handling renders the default orientation too low-contrast to scan.
  */
-function terminalIsDark(): boolean {
-  const cfb = process.env["COLORFGBG"];
-  if (cfb) {
-    const parts = cfb.split(";");
-    const bg = Number.parseInt(parts[parts.length - 1] ?? "", 10);
-    if (!Number.isNaN(bg)) return bg <= 6 || bg === 8;
-  }
-  return true;
-}
-
-// Swapping each half-block glyph for its photo-negative flips dark<->light
-// modules, so the QR keeps proper contrast whichever way the terminal renders.
-const QR_INVERT_MAP: Record<string, string> = {
-  "█": " ",        // █ full  → blank
-  " ":       "█",  // blank   → █ full
-  "▀":  "▄",  // ▀ upper → ▄ lower
-  "▄":  "▀",  // ▄ lower → ▀ upper
-};
-
-function invertQr(block: string): string {
-  return block.replace(/[█▀▄ ]/g, (c) => QR_INVERT_MAP[c] ?? c);
+function swapQrColors(block: string): string {
+  // Use a placeholder so the two replacements don't clobber each other.
+  return block
+    .replaceAll(QR_BG_LIGHT, "\x00")
+    .replaceAll(QR_BG_DARK, QR_BG_LIGHT)
+    .replaceAll("\x00", QR_BG_DARK);
 }
 
 /**
- * Print `text` as a scannable QR code with a quiet zone.
+ * Print `text` as a scannable QR code.
  *
- * QR codes must be dark-on-light to scan reliably. On a dark terminal the raw
- * block output is light-on-dark (inverted), so we flip it; on a light terminal
- * we leave it as-is. Pass `invert: true` (the `--qr-invert` flag) to override
- * the auto-detection when it guesses wrong.
+ * Uses qrcode-terminal's full-size mode, which renders each module as a pair of
+ * spaces over an explicit black (`\x1b[40m`) or white (`\x1b[47m`) background.
+ * That is theme-independent and far more reliable than the compact half-block
+ * mode, whose half-height rows break scanning when a terminal adds line spacing.
+ * Pass `invert: true` (the `--qr-invert` flag) to swap the colours if needed.
  */
 export function printQr(text: string, opts: { invert?: boolean } = {}): void {
-  qrcode.generate(text, { small: true }, (qr: string) => {
-    const autoInvert = terminalIsDark();
-    const doInvert = opts.invert ? !autoInvert : autoInvert;
-    const body = doInvert ? invertQr(qr) : qr;
-    // Blank lines above/below act as a vertical quiet zone.
+  qrcode.generate(text, { small: false }, (qr: string) => {
+    const body = opts.invert ? swapQrColors(qr) : qr;
+    // Blank lines above/below add breathing room around the quiet zone.
     process.stdout.write("\n" + body + "\n");
   });
 }

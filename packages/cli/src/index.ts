@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { spawnSync } from "node:child_process";
 import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
@@ -30,11 +29,11 @@ function emitJson(event: string, data: Record<string, unknown> = {}): void {
 
 // ── Privacy Policy consent ────────────────────────────────────────────────────
 
-const CONFIG_DIR    = join(homedir(), ".portlens");
-const CONSENT_FILE  = join(CONFIG_DIR, "consent.json");
+const CONFIG_DIR = join(homedir(), ".portlens");
+const CONSENT_FILE = join(CONFIG_DIR, "consent.json");
 /** Bump this version string whenever the privacy policy changes materially. */
 const POLICY_VERSION = "1.0";
-const POLICY_URL     = "https://portlens.net/privacy-policy.html";
+const POLICY_URL = "https://portlens.net/privacy-policy.html";
 
 interface ConsentRecord {
   accepted: boolean;
@@ -216,9 +215,9 @@ program
   .command("login")
   .description("Log in to PortLens with a magic link")
   .action(async () => {
-    const cfg  = readConfig();
+    const cfg = readConfig();
     const base = wsToHttp(cfg.relay);
-    const rl   = createInterface({ input, output });
+    const rl = createInterface({ input, output });
 
     try {
       const email = (await rl.question(chalk.cyan("  Email: "))).trim();
@@ -271,9 +270,9 @@ program
       writeAuth({
         token: data.token,
         user: {
-          id:              data.user.id,
-          email:           data.user.email,
-          plan:            data.user.plan as "free" | "pro",
+          id: data.user.id,
+          email: data.user.email,
+          plan: data.user.plan as "free" | "pro",
           customSubdomain: data.user.customSubdomain,
         },
       });
@@ -327,15 +326,15 @@ program
       process.exit(1);
     }
 
-    const cfg  = readConfig();
+    const cfg = readConfig();
     const base = wsToHttp(cfg.relay);
 
     const spinner = ora("Loading referral info…").start();
     let data: {
       user: {
-        referralCode:         string | null;
+        referralCode: string | null;
         referralBonusMinutes: number;
-        referralCount:        number;
+        referralCount: number;
       };
     };
 
@@ -367,10 +366,10 @@ program
       return;
     }
 
-    const link   = `https://portlens.net/?ref=${referralCode}`;
-    const hours  = Math.floor(referralBonusMinutes / 60);
-    const mins   = referralBonusMinutes % 60;
-    const bonus  = hours > 0 ? `${hours}h ${String(mins).padStart(2, "0")}m` : `${mins}m`;
+    const link = `https://portlens.net/?ref=${referralCode}`;
+    const hours = Math.floor(referralBonusMinutes / 60);
+    const mins = referralBonusMinutes % 60;
+    const bonus = hours > 0 ? `${hours}h ${String(mins).padStart(2, "0")}m` : `${mins}m`;
     const people = referralCount === 1 ? "person" : "people";
 
     console.log();
@@ -397,7 +396,7 @@ program
       process.exit(1);
     }
 
-    const cfg  = readConfig();
+    const cfg = readConfig();
     const base = wsToHttp(cfg.relay);
 
     const spinner = ora("Opening checkout…").start();
@@ -472,15 +471,15 @@ program
     // ── Privacy Policy gate ───────────────────────────────────────────────
     await ensurePrivacyConsent(json);
 
-    const cfg  = readConfig();
+    const cfg = readConfig();
     const auth = readAuth();
 
     // ── Relay URL normalisation & validation ──────────────────────────────
     // Accept bare hostnames/domains (e.g. "pankaj.portlens.net") by
     // auto-prepending wss://.  Reject anything that still doesn't parse.
-    const relay    = normaliseRelay((opts.relay as string | undefined) ?? cfg.relay);
-    const name     = (opts.name  as string | undefined) ?? cfg.defaultName;
-    const desc     = (opts.desc  as string | undefined) ?? cfg.defaultDesc;
+    const relay = normaliseRelay((opts.relay as string | undefined) ?? cfg.relay);
+    const name = (opts.name as string | undefined) ?? cfg.defaultName;
+    const desc = (opts.desc as string | undefined) ?? cfg.defaultDesc;
     const jwtToken = auth?.token;
 
     if (auth && !json) {
@@ -490,10 +489,10 @@ program
     const agent = new Agent(port, {
       name,
       desc,
-      password:     opts.password as string | undefined,
+      password: opts.password as string | undefined,
       relay,
       host,
-      noOpen:       opts.open === false,
+      noOpen: opts.open === false,
       jwtToken,
       noScreenshot: opts.screenshot === false,
       json,
@@ -513,7 +512,7 @@ program
     let expiresAt: string | null = null;
     let currentRtt: number | undefined;
     let reconnectInfo: ReconnectInfo | undefined;
-    let boxVisible    = false;
+    let boxVisible = false;
     let refreshTimer: NodeJS.Timeout | null = null;
 
     /** Render a fresh box snapshot using the latest state variables. */
@@ -531,8 +530,8 @@ program
 
     // ── First connect ────────────────────────────────────────────────────────
     agent.once("connected", () => {
-      currentStatus  = "connected";
-      reconnectInfo  = undefined;
+      currentStatus = "connected";
+      reconnectInfo = undefined;
 
       if (json) {
         emitJson("connected", { token: agent.token, localHost: host, localPort: port, shareUrl });
@@ -558,12 +557,12 @@ program
       expiresAt = info.expiresAt;
       if (json) {
         emitJson("ready", {
-          token:     agent.token,
+          token: agent.token,
           localHost: host,
           localPort: port,
           shareUrl,
           expiresAt: info.expiresAt,
-          plan:      info.plan,
+          plan: info.plan,
         });
         return;
       }
@@ -574,7 +573,7 @@ program
     // Agent emits (delayMs, attempt, maxAttempts) from ReconnectionManager.
     agent.on("reconnecting", (delayMs: number, attempt: number, maxAttempts: number) => {
       currentStatus = "reconnecting";
-      currentRtt    = undefined;  // RTT is stale while disconnected
+      currentRtt = undefined;  // RTT is stale while disconnected
       reconnectInfo = { delayMs, attempt, maxAttempts };
       if (json) {
         emitJson("reconnecting", { delayMs, attempt, maxAttempts });

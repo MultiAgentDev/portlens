@@ -1,6 +1,6 @@
 {
   "name": "@portlens/cli",
-  "version": "1.0.17",
+  "version": "1.0.20",
   "description": "Share your local server with anyone, instantly.",
   "type": "module",
   "bin": {
